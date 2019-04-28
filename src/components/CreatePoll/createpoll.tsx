@@ -2,7 +2,7 @@ import React, { Component } from 'react'
 import './createpoll.scss'
 
 
-interface State {
+export interface CState {
     [key: string]: any;
     counter: number;
     question: string;
@@ -15,8 +15,8 @@ interface State {
     poll7: string;
     poll8: string;
 }
-class CreatePoll extends Component<{}, State> {
-    state: State = {
+class CreatePoll extends Component<{}, CState> {
+    state: CState = {
         counter: 3,
         question: "",
         poll1: "",
@@ -28,23 +28,30 @@ class CreatePoll extends Component<{}, State> {
         poll7: "",
         poll8: ""
     }
-    componentDidUpdate() {
-        
+    componentDidUpdate(prevProps: {}, prevState: CState) {
+        const { counter } = this.state
+        const key = this.state[`poll${counter - 1}`]
+        if (key && key.length > 0) this.setState({ counter: counter + 1 })
     }
     render() {
         return (
             <div className="create-poll">
                 <div className="poll-content">
-                    {Object.keys(this.state).map((key: string) => {
-                        if (key === "counter") return
+                    {Object.keys(this.state).map((key: string, i: number) => {
+                        if (key === "counter" || i > this.state.counter) return
                         return (
                             <input value={this.state[key]}
-                            key={key}
-                            onChange={(e) => this.setState({[key]: e.target.value})}
-                            placeholder={key === "question" ? "type a question here" : ""}
+                                key={key}
+                                onChange={(e) => this.setState({ [key]: e.target.value })}
+                                placeholder={key === "question" ? "Type a question here" : ""}
                             />
                         )
                     })}
+                    <div className="button">
+                        <button>
+                            Submit
+                        </button>
+                    </div>
                 </div>
             </div>
         )
