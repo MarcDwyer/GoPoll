@@ -1,19 +1,18 @@
 package main
 
+import (
+	"github.com/google/uuid"
+)
+
 // Hub maintains the set of active clients and broadcasts messages to the
 // clients.
 type Hub struct {
-	// Registered clients.
-	clients map[*Client]bool
-
-	// Inbound messages from the clients.
-	broadcast chan []byte
-
-	// Register requests from the clients.
-	register chan *Client
-
-	// Unregister requests from clients.
+	clients    map[*Client]bool
+	broadcast  chan []byte
+	register   chan *Client
 	unregister chan *Client
+	setPoll    chan *Client
+	polls      map[uuid.UUID]*Client
 }
 
 func newHub() *Hub {
@@ -22,6 +21,7 @@ func newHub() *Hub {
 		register:   make(chan *Client),
 		unregister: make(chan *Client),
 		clients:    make(map[*Client]bool),
+		polls:      make(map[uuid.UUID]*Client),
 	}
 }
 

@@ -28,7 +28,7 @@ class CreatePoll extends Component<{}, CState> {
         poll7: "",
         poll8: ""
     }
-    componentDidUpdate(prevProps: {}, prevState: CState) {
+    componentDidUpdate(prevProps: {}, prevState: CState ) {
         const { counter } = this.state
         const key = this.state[`poll${counter - 1}`]
         if (key && key.length > 0) this.setState({ counter: counter + 1 })
@@ -43,7 +43,7 @@ class CreatePoll extends Component<{}, CState> {
                             <input value={this.state[key]}
                                 key={key}
                                 onChange={(e) => this.setState({ [key]: e.target.value })}
-                                placeholder={key === "question" ? "Type a question here" : ""}
+                                placeholder={key === "question" ? "Type a question here" : "Enter poll option"}
                             />
                         )
                     })}
