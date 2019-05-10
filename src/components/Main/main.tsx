@@ -5,13 +5,13 @@ import './main-styles.scss'
 import CreatePoll from '../CreatePoll/createpoll'
 
 interface State {
-    ws: WebSocket;
+    ws: WebSocket | null;
     result: any;
 }
 
 class Homepage extends Component<{}, State> {
     state = {
-        ws: new WebSocket(`ws://${document.location.hostname}:5000/socket/`),
+        ws: null,
         result: null
     }
     render() {
@@ -19,11 +19,15 @@ class Homepage extends Component<{}, State> {
             <div className="main">
                 <BrowserRouter>
                     <Switch>
-                        <Route path="/" component={CreatePoll} />
+                        <Route path="/" render={(props) => <CreatePoll {...props} setWs={this.setWs} /> } />
                     </Switch>
                 </BrowserRouter>
             </div>
         )
+    }
+    setWs = (id: string) => {
+        const webStr = `ws://${document.location.hostname}:5000/socket/${id}`
+        this.setState({ws: new WebSocket(webStr)})
     }
 }
 

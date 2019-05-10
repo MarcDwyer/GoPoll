@@ -1,11 +1,16 @@
 import React, { Component } from 'react'
 import './createpoll.scss'
+import { RouteComponentProps } from 'react-router';
 
 
 export interface CState {
-    [key: string]: any;
     counter: number;
     question: string;
+    pollQuestions: PollQ;
+}
+
+interface PollQ {
+    [key: string]: any;
     poll1: string;
     poll2: string;
     poll3: string;
@@ -15,44 +20,79 @@ export interface CState {
     poll7: string;
     poll8: string;
 }
-class CreatePoll extends Component<{}, CState> {
+
+interface Props extends RouteComponentProps<{ id: string }> {
+    setWs: Function;
+}
+class CreatePoll extends Component<Props, CState> {
     state: CState = {
-        counter: 3,
+        counter: 2,
         question: "",
-        poll1: "",
-        poll2: "",
-        poll3: "",
-        poll4: "",
-        poll5: "",
-        poll6: "",
-        poll7: "",
-        poll8: ""
+        pollQuestions: {
+            poll1: "",
+            poll2: "",
+            poll3: "",
+            poll4: "",
+            poll5: "",
+            poll6: "",
+            poll7: "",
+            poll8: ""
+        }
     }
-    componentDidUpdate(prevProps: {}, prevState: CState ) {
+    componentDidUpdate(prevProps: Props, prevState: CState) {
         const { counter } = this.state
-        const key = this.state[`poll${counter - 1}`]
+        const key = this.state.pollQuestions[`poll${counter}`]
         if (key && key.length > 0) this.setState({ counter: counter + 1 })
     }
     render() {
+        const { question } = this.state
+        console.log(this.props)
         return (
             <div className="create-poll">
-                <div className="poll-content">
-                    {Object.keys(this.state).map((key: string, i: number) => {
-                        if (key === "counter" || i > this.state.counter) return
-                        return (
-                            <input value={this.state[key]}
-                                key={key}
-                                onChange={(e) => this.setState({ [key]: e.target.value })}
-                                placeholder={key === "question" ? "Type a question here" : "Enter poll option"}
-                            />
-                        )
-                    })}
-                    <div className="button">
-                        <button>
-                            Submit
+                <form
+                    onSubmit={(e) => {
+                        e.preventDefault()
+                        const { pollQuestions, question } = this.state
+                        if (question.length === 0) return
+                        const pollFiltered = Object.keys(pollQuestions).map(key => {
+                            if (pollQuestions[key].length === 0) return
+                            return { [key]: pollQuestions[key] }
+                        }).filter(item => item)
+                        const payload = {
+                            question,
+                            pollQuestions: pollFiltered
+                        }
+                        console.log(payload)
+                    }}
+                >
+                    <div className="poll-content">
+                        <input 
+                        value={question}
+                        onChange={(e) => this.setState({question: e.target.value})}
+                        placeholder="Enter your question here"
+                        />
+                        {Object.keys(this.state.pollQuestions).map((key: string, i: number) => {
+                            if (i >= this.state.counter) return
+                            return (
+                                <input value={this.state.pollQuestions[key]}
+                                    key={key}
+                                    onChange={(e) => {
+                                        const shallow = this.state.pollQuestions
+                                        shallow[key] = e.target.value
+                                        this.setState({pollQuestions: shallow})
+                                    }}
+                                    placeholder={"Enter poll option"}
+                                    name={key}
+                                />
+                            )
+                        })}
+                        <div className="button">
+                            <button>
+                                Submit
                         </button>
+                        </div>
                     </div>
-                </div>
+                </form>
             </div>
         )
     }
