@@ -46,23 +46,27 @@ class CreatePoll extends Component<Props, CState> {
     }
     render() {
         const { question } = this.state
-        console.log(this.props)
         return (
             <div className="create-poll">
                 <form
                     onSubmit={(e) => {
                         e.preventDefault()
-                        const { pollQuestions, question } = this.state
-                        if (question.length === 0) return
-                        const pollFiltered = Object.keys(pollQuestions).map(key => {
-                            if (pollQuestions[key].length === 0) return
-                            return { [key]: pollQuestions[key] }
-                        }).filter(item => item)
-                        const payload = {
-                            question,
-                            pollQuestions: pollFiltered
+                        try {
+                            const { pollQuestions, question } = this.state
+                            if (question.length === 0) return
+                            const pollFiltered = Object.keys(pollQuestions).map(key => {
+                                if (pollQuestions[key].length === 0) return
+                                return { [key]: pollQuestions[key] }
+                            }).filter(item => item)
+                            const payload = {
+                                question,
+                                pollQuestions: pollFiltered
+                            }
+                            this.sendPayload(payload)
+                            
+                        } catch(err) {
+                            console.log(err)
                         }
-                        console.log(payload)
                     }}
                 >
                     <div className="poll-content">
@@ -95,6 +99,15 @@ class CreatePoll extends Component<Props, CState> {
                 </form>
             </div>
         )
+    }
+    async sendPayload(payload: any) {
+        console.log(payload)
+        const send = await fetch("/createpoll", {
+            method: 'POST',
+            body: JSON.stringify(payload)
+        })
+        const data = await send.json();
+        console.log(data)
     }
 }
 
