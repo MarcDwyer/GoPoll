@@ -5,9 +5,13 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
+	"gopkg.in/mgo.v2/bson"
+
 	"github.com/gorilla/websocket"
+	mgo "gopkg.in/mgo.v2"
 )
 
 const (
@@ -138,10 +142,39 @@ func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request, vars map[string]s
 		return
 	}
 	client := &Client{hub: hub, conn: conn, send: make(chan []byte, 256), id: vars["id"]}
+
+	if ok := checkPost(client.id); !ok {
+		fmt.Println("Not a valid id")
+		return
+	}
 	client.hub.register <- client
 
 	// Allow collection of memory referenced by the caller by doing all work in
 	// new goroutines.
 	go client.writePump()
 	go client.readPump()
+}
+
+func checkPost(id string) bool {
+	fmt.Println(id)
+	if ok := bson.IsObjectIdHex(id); !ok {
+		return false
+	}
+	session, err := mgo.Dial(os.Getenv("MONGODB"))
+	if err != nil {
+		panic(err)
+	}
+	defer session.Close()
+	c := session.DB("abase").C("pollsv2")
+
+	result, _ := c.FindId(bson.ObjectIdHex(id)).Count()
+
+	switch result {
+	case 0:
+		fmt.Println("No documents found")
+		return false
+	default:
+		fmt.Println(result)
+		return true
+	}
 }

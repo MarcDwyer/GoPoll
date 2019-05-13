@@ -3,6 +3,7 @@ import { BrowserRouter, Switch, Route } from 'react-router-dom'
 import './main-styles.scss'
 
 import CreatePoll from '../CreatePoll/createpoll'
+import ViewPoll from '../ViewPoll/viewpoll'
 
 interface State {
     ws: WebSocket | null;
@@ -20,6 +21,7 @@ class Homepage extends Component<{}, State> {
             <div className="main">
                 <BrowserRouter>
                     <Switch>
+                        <Route path="/:id" render={(props) => <ViewPoll {...props} setWs={this.setWs} /> } />
                         <Route path="/" render={(props) => <CreatePoll {...props} setWs={this.setWs} /> } />
                     </Switch>
                 </BrowserRouter>

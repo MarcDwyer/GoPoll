@@ -8,9 +8,6 @@ type Hub struct {
 	register   chan *Client
 	unregister chan *Client
 }
-type SubPoll struct {
-	id *Client
-}
 
 func newHub() *Hub {
 	return &Hub{
@@ -25,7 +22,12 @@ func (h *Hub) run() {
 	for {
 		select {
 		case client := <-h.register:
-			h.clients[client.id][client] = true
+			if _, ok := h.clients[client.id]; !ok {
+				newEntry := map[*Client]bool{client: true}
+				h.clients[client.id] = newEntry
+			} else {
+				h.clients[client.id][client] = true
+			}
 		case client := <-h.unregister:
 			if _, ok := h.clients[client.id]; ok {
 				delete(h.clients[client.id], client)
