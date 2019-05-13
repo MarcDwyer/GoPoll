@@ -27,8 +27,7 @@ func main() {
 
 	r.HandleFunc("/socket/{id}", func(w http.ResponseWriter, r *http.Request) {
 		vars := mux.Vars(r)
-		fmt.Println(vars)
-		serveWs(hub, w, r)
+		serveWs(hub, w, r, vars)
 	})
 
 	r.HandleFunc("/createpoll", creatPoll)

@@ -15,6 +15,7 @@ class Homepage extends Component<{}, State> {
         result: null
     }
     render() {
+        console.log(this.state.ws)
         return (
             <div className="main">
                 <BrowserRouter>
@@ -26,6 +27,7 @@ class Homepage extends Component<{}, State> {
         )
     }
     setWs = (id: string) => {
+        console.log(id)
         const webStr = `ws://${document.location.hostname}:5000/socket/${id}`
         this.setState({ws: new WebSocket(webStr)})
     }

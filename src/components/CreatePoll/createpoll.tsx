@@ -106,8 +106,9 @@ class CreatePoll extends Component<Props, CState> {
             method: 'POST',
             body: JSON.stringify(payload)
         })
-        const data = await send.json();
-        console.log(data)
+        const data: string = await send.json();
+        if (!data) return
+        this.props.setWs(data)
     }
 }
 
