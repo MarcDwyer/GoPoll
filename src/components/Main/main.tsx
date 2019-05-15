@@ -15,6 +15,9 @@ class Homepage extends Component<{}, State> {
         ws: null,
         result: null
     }
+    componentWillUnmount() {
+        this.state.ws.removeEventListener('message', this.readWs)
+    }
     render() {
         console.log(this.state.ws)
         return (
@@ -29,9 +32,17 @@ class Homepage extends Component<{}, State> {
         )
     }
     setWs = (id: string) => {
-        console.log(id)
         const webStr = `ws://${document.location.hostname}:5000/socket/${id}`
-        this.setState({ws: new WebSocket(webStr)})
+        this.setState({ws: new WebSocket(webStr)}, () => {
+            if (this.state.ws) {
+                this.state.ws.addEventListener('message', this.readWs)
+            }
+        })
+    }
+    readWs = (msg: any) => {
+        const result = JSON.parse(msg.data)
+        console.log(msg)
+        console.log(result)
     }
 }
 

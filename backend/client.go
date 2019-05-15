@@ -2,6 +2,7 @@ package main
 
 import (
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
@@ -143,19 +144,15 @@ func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request, vars map[string]s
 	}
 	client := &Client{hub: hub, conn: conn, send: make(chan []byte, 256), id: vars["id"]}
 
-	if ok := checkPost(client.id); !ok {
-		fmt.Println("Not a valid id")
-		return
-	}
 	client.hub.register <- client
-
+	go client.sendPost()
 	// Allow collection of memory referenced by the caller by doing all work in
 	// new goroutines.
 	go client.writePump()
 	go client.readPump()
 }
 
-func checkPost(id string) bool {
+func checkpost(id string) bool {
 	fmt.Println(id)
 	if ok := bson.IsObjectIdHex(id); !ok {
 		return false
@@ -177,4 +174,28 @@ func checkPost(id string) bool {
 		fmt.Println(result)
 		return true
 	}
+}
+
+func (c *Client) sendPost() {
+	fmt.Println("sent post sent...")
+	if ok := bson.IsObjectIdHex(c.id); !ok {
+		return
+	}
+	getPoll := &Poll{}
+
+	session, err := mgo.Dial(os.Getenv("MONGODB"))
+	if err != nil {
+		panic(err)
+	}
+	defer session.Close()
+	coll := session.DB("abase").C("pollsv2")
+
+	err = coll.FindId(bson.ObjectIdHex(c.id)).One(&getPoll)
+	if err != nil {
+		fmt.Println(err)
+	}
+	getPoll.Type = "poll"
+	rz, _ := json.Marshal(&getPoll)
+
+	c.send <- rz
 }
