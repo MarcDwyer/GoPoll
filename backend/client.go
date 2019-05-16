@@ -145,7 +145,7 @@ func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request, vars map[string]s
 	client := &Client{hub: hub, conn: conn, send: make(chan []byte, 256), id: vars["id"]}
 
 	client.hub.register <- client
-	go client.sendPost()
+	go client.sendPoll()
 	// Allow collection of memory referenced by the caller by doing all work in
 	// new goroutines.
 	go client.writePump()
@@ -176,13 +176,19 @@ func checkpost(id string) bool {
 	}
 }
 
-func (c *Client) sendPost() {
+func (c *Client) sendPoll() {
 	fmt.Println("sent post sent...")
+	getPoll := &Poll{}
+	payload := []byte{}
+	defer func() {
+		c.send <- payload
+	}()
 	if ok := bson.IsObjectIdHex(c.id); !ok {
+		getPoll.Error = "ID not found"
+		getPoll.Type = "invalid_id"
+		payload, _ = json.Marshal(&getPoll)
 		return
 	}
-	getPoll := &Poll{}
-
 	session, err := mgo.Dial(os.Getenv("MONGODB"))
 	if err != nil {
 		panic(err)
@@ -195,7 +201,5 @@ func (c *Client) sendPost() {
 		fmt.Println(err)
 	}
 	getPoll.Type = "poll"
-	rz, _ := json.Marshal(&getPoll)
-
-	c.send <- rz
+	payload, _ = json.Marshal(&getPoll)
 }

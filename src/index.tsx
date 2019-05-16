@@ -6,7 +6,7 @@ import * as serviceWorker from './serviceWorker';
 import Main from './components/Main/main';
 
 ReactDOM.render(
-<Main />
+        <Main />
     , document.getElementById('root'));
 
 // If you want your app to work offline and load faster, you can change

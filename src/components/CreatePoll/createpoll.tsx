@@ -21,10 +21,11 @@ interface PollQ {
     poll8: string;
 }
 
-interface Props extends RouteComponentProps<{ id: string }> {
+interface IProps extends RouteComponentProps<{ id: string }> {
     setWs: Function;
 }
-class CreatePoll extends Component<Props, CState> {
+
+class CreatePoll extends Component<IProps, CState> {
     state: CState = {
         counter: 2,
         question: "",
@@ -39,7 +40,7 @@ class CreatePoll extends Component<Props, CState> {
             poll8: ""
         }
     }
-    componentDidUpdate(prevProps: Props, prevState: CState) {
+    componentDidUpdate(prevProps:  RouteComponentProps<{ id: string }>, prevState: CState) {
         const { counter } = this.state
         const key = this.state.pollQuestions[`poll${counter}`]
         if (key && key.length > 0) this.setState({ counter: counter + 1 })
@@ -101,14 +102,13 @@ class CreatePoll extends Component<Props, CState> {
         )
     }
     async sendPayload(payload: any) {
-        console.log(payload)
         const send = await fetch("/createpoll", {
             method: 'POST',
             body: JSON.stringify(payload)
         })
         const data: string = await send.json();
         if (!data) return
-        this.props.setWs(data)
+        this.props.history.push(`/vote/${data}`)
     }
 }
 
