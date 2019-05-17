@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
-import { Switch, Route, BrowserRouter } from 'react-router-dom'
-import { RouteComponentProps } from 'react-router'
+import { Switch, Route, withRouter, matchPath } from 'react-router-dom'
+import { RouteComponentProps, match } from 'react-router'
 import './main-styles.scss'
 
 import CreatePoll from '../CreatePoll/createpoll'
@@ -12,10 +12,10 @@ interface State {
     ws: WebSocket | null;
     poll: Poll | null;
     creator: boolean;
-    id: string | null;
+    pollId: ID | null;
     error: Error | null;
 }
-interface Poll {
+export interface Poll {
     pollQuestions: PollQuestions;
     type: string;
     question: string;
@@ -30,13 +30,16 @@ interface Error {
     message: string;
     type: string;
 }
-
-class Homepage extends Component<{}, State> {
+interface ID {
+    id: string;
+    param: string;
+}
+class Homepage extends Component<RouteComponentProps, State> {
     state = {
         ws: null,
         poll: null,
         creator: false,
-        id: null,
+        pollId: null,
         error: null
     }
     componentWillUnmount() {
@@ -45,24 +48,23 @@ class Homepage extends Component<{}, State> {
         }
     }
     render() {
-        console.log(this.state)
+
+        this.checkRoute()
         return (
             <div className="main">
-                <BrowserRouter>
                     <Nav />
                     <Switch>
                         <Route path="/view/:id" render={(props) => <ViewPoll {...props} setWs={this.setWs} />} />
-                        <Route path="/vote/:id" render={(props) => <VotePoll {...props} ws={this.state.ws} setWs={this.setWs} />} />
+                        <Route path="/vote/:id" render={(props) => <VotePoll {...props} ws={this.state.ws} setWs={this.setWs} poll={this.state.poll} />} />
                         <Route path="/" render={(props) => <CreatePoll {...props} setWs={this.setWs} />} />
                     </Switch>
-                </BrowserRouter>
             </div>
         )
     }
     setWs = (id: string) => {
-        if (id === this.state.id) return
+        if (id === this.state.pollId) return
         const webStr = `ws://${document.location.hostname}:5000/socket/${id}`
-        this.setState({ ws: new WebSocket(webStr), creator: true, id }, () => {
+        this.setState({ ws: new WebSocket(webStr), creator: true }, () => {
             if (this.state.ws) {
                 this.state.ws.addEventListener('message', this.readWs)
             }
@@ -85,6 +87,16 @@ class Homepage extends Component<{}, State> {
         }
         this.setState({ poll: result })
     }
+    checkRoute = () => {
+        const match: match<{id: string}> = matchPath(this.props.history.location.pathname, {
+            path: '/:param/:id',
+            exact: true,
+            strict: false
+          })
+          if (match && match.params.id) {
+              console.log("weeee")
+          }
+    }
 }
 
-export default Homepage
+export default withRouter(Homepage)
