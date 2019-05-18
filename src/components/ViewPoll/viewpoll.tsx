@@ -6,10 +6,6 @@ interface IProps extends RouteComponentProps<{ id: string }> {
 }
 
 const ViewPoll = (props:IProps) => {
-    useEffect(() => {
-        const { id } = props.match.params
-        props.setWs(id)
-    }, [])
     return (
         <div className="create-poll results">
             <span>apple</span>

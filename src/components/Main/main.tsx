@@ -34,12 +34,24 @@ interface ID {
     id: string;
     param: string;
 }
+const checkRoute = (props: RouteComponentProps) => {
+    const match: match<{ id: string, param: string }> = matchPath(props.history.location.pathname, {
+        path: '/:param/:id',
+        exact: true,
+        strict: false
+    })
+    if (match && match.params.id) {
+        return match.params
+    } else {
+        return null
+    }
+}
 class Homepage extends Component<RouteComponentProps, State> {
     state = {
         ws: null,
         poll: null,
         creator: false,
-        pollId: null,
+        pollId: checkRoute(this.props),
         error: null
     }
     componentWillUnmount() {
@@ -47,28 +59,43 @@ class Homepage extends Component<RouteComponentProps, State> {
             this.state.ws.removeEventListener('message', this.readWs)
         }
     }
-    render() {
+    componentDidMount() {
+        const { pollId } = this.state
+        if (pollId && pollId.id.length > 0) {
+            const webStr = `ws://${document.location.hostname}:5000/socket/${pollId.id}`
+            this.setState({ws: new WebSocket(webStr)})
+        }
+    }
+    componentDidUpdate() {
+        const { pollId } = this.state
+        const route = checkRoute(this.props)
+        if (!route || route && route.id.length === 0 || route && pollId && route.id === pollId.id) return
+        const webStr = `ws://${document.location.hostname}:5000/socket/${pollId.id}`
+        this.setState({pollId: route, ws: new WebSocket(webStr)})
 
-        this.checkRoute()
+    }
+    render() {
+        console.log(this.state)
         return (
             <div className="main">
-                    <Nav />
-                    <Switch>
-                        <Route path="/view/:id" render={(props) => <ViewPoll {...props} setWs={this.setWs} />} />
-                        <Route path="/vote/:id" render={(props) => <VotePoll {...props} ws={this.state.ws} setWs={this.setWs} poll={this.state.poll} />} />
-                        <Route path="/" render={(props) => <CreatePoll {...props} setWs={this.setWs} />} />
-                    </Switch>
+                <Nav />
+                <Switch>
+                    <Route path="/view/:id" render={(props) => <ViewPoll {...props} setWs={this.setWs} />} />
+                    <Route path="/vote/:id" render={(props) => <VotePoll {...props} ws={this.state.ws} setWs={this.setWs} poll={this.state.poll} />} />
+                    <Route path="/" render={(props) => <CreatePoll {...props} setWs={this.setWs} />} />
+                </Switch>
             </div>
         )
     }
     setWs = (id: string) => {
-        if (id === this.state.pollId) return
-        const webStr = `ws://${document.location.hostname}:5000/socket/${id}`
-        this.setState({ ws: new WebSocket(webStr), creator: true }, () => {
-            if (this.state.ws) {
-                this.state.ws.addEventListener('message', this.readWs)
-            }
-        })
+        console.log(id)
+        //   if (id === this.state.pollId.id) return
+        //   const webStr = `ws://${document.location.hostname}:5000/socket/${id}`
+        //    this.setState({ ws: new WebSocket(webStr), creator: true }, () => {
+        //        if (this.state.ws) {
+        this.state.ws.addEventListener('message', this.readWs)
+        //        }
+        //    })
     }
     readWs = (msg: any) => {
         if (!msg.data) return
@@ -86,16 +113,6 @@ class Homepage extends Component<RouteComponentProps, State> {
             return
         }
         this.setState({ poll: result })
-    }
-    checkRoute = () => {
-        const match: match<{id: string}> = matchPath(this.props.history.location.pathname, {
-            path: '/:param/:id',
-            exact: true,
-            strict: false
-          })
-          if (match && match.params.id) {
-              console.log("weeee")
-          }
     }
 }
 
