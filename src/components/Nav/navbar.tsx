@@ -5,7 +5,6 @@ import './navbar.scss'
 
 
 const Navbar = () => {
-
     return (
         <nav>
             <Link to="/" className="brand-logo">

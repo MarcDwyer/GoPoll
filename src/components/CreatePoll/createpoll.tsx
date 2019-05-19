@@ -7,6 +7,8 @@ export interface CState {
     counter: number;
     question: string;
     pollQuestions: PollQ;
+    waiter: boolean;
+    error: string | null;
 }
 
 interface PollQ {
@@ -22,12 +24,13 @@ interface PollQ {
 }
 
 interface IProps extends RouteComponentProps<{ id: string }> {
-    setWs: Function;
 }
 
 class CreatePoll extends Component<IProps, CState> {
     state: CState = {
         counter: 2,
+        error: null,
+        waiter: false,
         question: "",
         pollQuestions: {
             poll1: "",
@@ -40,21 +43,29 @@ class CreatePoll extends Component<IProps, CState> {
             poll8: ""
         }
     }
-    componentDidUpdate(prevProps:  RouteComponentProps<{ id: string }>, prevState: CState) {
+    componentDidUpdate(prevProps: RouteComponentProps<{ id: string }>, prevState: CState) {
         const { counter } = this.state
         const key = this.state.pollQuestions[`poll${counter}`]
         if (key && key.length > 0) this.setState({ counter: counter + 1 })
     }
     render() {
-        const { question } = this.state
+        const { question, error, waiter } = this.state
         return (
             <div className="create-poll">
+                {(error && (
+                    <span className="error">{error}</span>
+                ))}
                 <form
                     onSubmit={(e) => {
                         e.preventDefault()
                         try {
                             const { pollQuestions, question } = this.state
-                            if (question.length === 0) return
+                            if (question.length === 0) throw "Please enter a question"
+                            const questions = Object.values(pollQuestions)
+                            for (let x = 0; x <= 2; x++) {
+                                console.log(questions[x].length)
+                                if (questions[x].length === 0) throw "Poll must have atleast 2 questions"
+                            }
                             const pollFiltered = Object.keys(pollQuestions).map(key => {
                                 if (pollQuestions[key].length === 0) return
                                 return { [key]: pollQuestions[key] }
@@ -64,17 +75,20 @@ class CreatePoll extends Component<IProps, CState> {
                                 pollQuestions: pollFiltered
                             }
                             this.sendPayload(payload)
-                            
-                        } catch(err) {
-                            console.log(err)
+
+                        } catch (err) {
+                            if (typeof err === 'string') {
+                                this.setState({ error: err })
+                            }
                         }
                     }}
                 >
                     <div className="poll-content">
-                        <input 
-                        value={question}
-                        onChange={(e) => this.setState({question: e.target.value})}
-                        placeholder="Enter your question here"
+                        <input
+                            value={question}
+                            onChange={(e) => this.setState({ question: e.target.value })}
+                            placeholder="Enter your question here"
+                            autoComplete="off"
                         />
                         {Object.keys(this.state.pollQuestions).map((key: string, i: number) => {
                             if (i >= this.state.counter) return
@@ -84,17 +98,18 @@ class CreatePoll extends Component<IProps, CState> {
                                     onChange={(e) => {
                                         const shallow = this.state.pollQuestions
                                         shallow[key] = e.target.value
-                                        this.setState({pollQuestions: shallow})
+                                        this.setState({ pollQuestions: shallow })
                                     }}
                                     placeholder={"Enter poll option"}
                                     name={key}
+                                    autoComplete="off"
                                 />
                             )
                         })}
                         <div className="button">
-                            <button>
-                                Submit
-                        </button>
+                            <button className={waiter ? "off-button" : ""}>
+                                {waiter ? "Waiting..." : "Submit"}
+                            </button>
                         </div>
                     </div>
                 </form>
@@ -102,13 +117,20 @@ class CreatePoll extends Component<IProps, CState> {
         )
     }
     async sendPayload(payload: any) {
-        const send = await fetch("/createpoll", {
-            method: 'POST',
-            body: JSON.stringify(payload)
-        })
-        const data: string = await send.json();
-        if (!data) return
-        this.props.history.push(`/vote/${data}`)
+        if (this.state.waiter) return
+        try {
+            const send = await fetch("/createpoll", {
+                method: 'POST',
+                body: JSON.stringify(payload)
+            })
+            const data: string = await send.json();
+            if (!data) return
+            this.props.history.push(`/vote/${data}`)
+        } catch (err) {
+            this.setState({ error: "Server not responding try again", waiter: true }, () => {
+                setTimeout(() => this.setState({ waiter: false, error: null }), 3500)
+            })
+        }
     }
 }
 

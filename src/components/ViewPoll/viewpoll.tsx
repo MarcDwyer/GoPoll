@@ -1,11 +1,6 @@
-import React, { useEffect } from 'react'
-import { RouteComponentProps } from 'react-router';
+import React from 'react'
 
-interface IProps extends RouteComponentProps<{ id: string }> {
-    setWs: Function;
-}
-
-const ViewPoll = (props:IProps) => {
+const ViewPoll = (props:any) => {
     return (
         <div className="create-poll results">
             <span>apple</span>

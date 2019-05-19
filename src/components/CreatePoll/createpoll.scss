@@ -6,6 +6,13 @@
     background-color: #ffd756;
     border-radius: 5px;
 
+    .error {
+        text-align: center;
+    }
+    .off-button {
+        opacity: .5;
+    }
+
     .poll-content {
         display: flex;
         height: 100%;

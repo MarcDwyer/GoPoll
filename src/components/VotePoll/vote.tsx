@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import { RouteComponentProps } from 'react-router';
 import { Poll } from '../Main/main'
 
@@ -6,7 +6,6 @@ import './vote.scss'
 
 interface IProps extends RouteComponentProps<{ id: string }> {
     ws: WebSocket;
-    setWs: Function;
     poll: Poll | null;
 }
 
