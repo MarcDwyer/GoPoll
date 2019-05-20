@@ -63,13 +63,16 @@ class CreatePoll extends Component<IProps, CState> {
                             if (question.length === 0) throw "Please enter a question"
                             const questions = Object.values(pollQuestions)
                             for (let x = 0; x <= 1; x++) {
-                                console.log(questions[x].length)
                                 if (questions[x].length === 0) throw "Poll must have atleast 2 questions"
                             }
                             const pollFiltered = Object.keys(pollQuestions).map(key => {
                                 if (pollQuestions[key].length === 0) return
                                 return { [key]: pollQuestions[key] }
-                            }).filter(item => item)
+                            }).filter(item => item).reduce((obj, i) => {
+                                const key = Object.keys(i)
+                                obj[key[0]] = i
+                                return obj
+                            }, {})
                             const payload = {
                                 question,
                                 pollQuestions: pollFiltered
@@ -118,6 +121,7 @@ class CreatePoll extends Component<IProps, CState> {
     }
     async sendPayload(payload: any) {
         if (this.state.waiter) return
+        console.log(payload)
         try {
             const send = await fetch("/createpoll", {
                 method: 'POST',

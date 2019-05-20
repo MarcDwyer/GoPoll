@@ -11,6 +11,7 @@ interface IProps extends RouteComponentProps<{ id: string }> {
 
 
 const ViewPoll = (props: IProps) => {
+    console.log(props)
     return (
         <div className="create-poll view-poll">
             

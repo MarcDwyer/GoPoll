@@ -63,25 +63,30 @@ class Homepage extends Component<RouteComponentProps, State> {
         const { pollId, ws } = this.state
         if (!ws && pollId && pollId.id.length > 0) {
             const webStr = `ws://${document.location.hostname}:5000/socket/${pollId.id}`
-            this.setState({ ws: new WebSocket(webStr) }, () => this.setMessage(false))
+            this.setState({ ws: new WebSocket(webStr) }, () => this.setMessage())
         }
     }
     componentDidUpdate() {
         const { pollId, ws } = this.state
-        const route = checkRoute(this.props.location.pathname)  
+        const route = checkRoute(this.props.location.pathname)
         if (route) {
             if (!pollId || pollId && pollId.id !== route.id) {
+                if (ws) {
+                    ws.close()
+                }
                 const webStr = `ws://${document.location.hostname}:5000/socket/${route.id}`
-                this.setState({ pollId: route, ws: new WebSocket(webStr) }, () => this.setMessage(true))
+                this.setState({ pollId: route, ws: new WebSocket(webStr) }, () => this.setMessage())
             }
         } else {
             if (pollId) {
-                this.setState({ pollId: null, ws: null, poll: null})
+                ws.close()
+                ws.removeEventListener('message', this.setMessage)
+                this.setState({ pollId: null, ws: null, poll: null })
             }
         }
     }
     render() {
-        console.log(this.state)
+    //        console.log(this.state)
         return (
             <div className="main">
                 <Nav />
@@ -93,17 +98,13 @@ class Homepage extends Component<RouteComponentProps, State> {
             </div>
         )
     }
-    setMessage = (recur: boolean) => {
+    setMessage = () => {
         const { ws } = this.state
-        if (recur) {
-            ws.removeEventListener('message', this.readWs)
-        } 
         ws.addEventListener('message', this.readWs)
     }
     readWs = (msg: any) => {
         if (!msg.data) return
         const result = JSON.parse(msg.data)
-        console.log(result)
         if (result.error) {
             switch (result.type) {
                 case "invalid_id":

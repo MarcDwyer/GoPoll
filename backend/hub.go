@@ -1,5 +1,7 @@
 package main
 
+import "fmt"
+
 // Hub maintains the set of active clients and broadcasts messages to the
 // clients.
 type Hub struct {
@@ -30,6 +32,7 @@ func (h *Hub) run() {
 			}
 		case client := <-h.unregister:
 			if _, ok := h.clients[client.id]; ok {
+				fmt.Println("client dcd2")
 				delete(h.clients[client.id], client)
 				close(client.send)
 			}
