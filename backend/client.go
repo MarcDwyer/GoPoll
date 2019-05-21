@@ -52,6 +52,7 @@ type Client struct {
 	send chan []byte
 
 	id string
+	ip string
 }
 type Message struct {
 	message []byte
@@ -85,11 +86,6 @@ func (c *Client) readPump() {
 	}
 }
 
-// writePump pumps messages from the hub to the websocket connection.
-//
-// A goroutine running writePump is started for each connection. The
-// application ensures that there is at most one writer to a connection by
-// executing all writes from this goroutine.
 func (c *Client) writePump() {
 	ticker := time.NewTicker(pingPeriod)
 	defer func() {
@@ -131,7 +127,6 @@ func (c *Client) writePump() {
 	}
 }
 
-// serveWs handles websocket requests from the peer.
 func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request, vars map[string]string) {
 	if _, ok := vars["id"]; !ok {
 		fmt.Println("id not found")
@@ -143,11 +138,9 @@ func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request, vars map[string]s
 		return
 	}
 	client := &Client{hub: hub, conn: conn, send: make(chan []byte, 256), id: vars["id"]}
-
+	client.ip = client.conn.LocalAddr().String()
 	client.hub.register <- client
 	go client.sendPoll()
-	// Allow collection of memory referenced by the caller by doing all work in
-	// new goroutines.
 	go client.writePump()
 	go client.readPump()
 }
@@ -157,12 +150,12 @@ func (c *Client) sendPoll() {
 	getPoll := &Poll{}
 	payload := []byte{}
 	defer func() {
+		payload, _ = json.Marshal(&getPoll)
 		c.send <- payload
 	}()
 	if ok := bson.IsObjectIdHex(c.id); !ok {
 		getPoll.Error = "ID not found"
 		getPoll.Type = "invalid_id"
-		payload, _ = json.Marshal(&getPoll)
 		return
 	}
 	session, err := mgo.Dial(os.Getenv("MONGODB"))
@@ -174,7 +167,9 @@ func (c *Client) sendPoll() {
 
 	err = coll.FindId(bson.ObjectIdHex(c.id)).One(&getPoll)
 	if err != nil {
-		fmt.Println(err)
+		getPoll.Error = "Poll not found"
+		getPoll.Type = "not_found"
+		return
 	}
 	getPoll.Type = "poll"
 	payload, _ = json.Marshal(&getPoll)

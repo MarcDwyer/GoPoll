@@ -1,9 +1,14 @@
 package main
 
-import "fmt"
+import (
+	"fmt"
+	"os"
+	"time"
 
-// Hub maintains the set of active clients and broadcasts messages to the
-// clients.
+	mgo "gopkg.in/mgo.v2"
+	"gopkg.in/mgo.v2/bson"
+)
+
 type Hub struct {
 	clients    map[string]map[*Client]bool
 	broadcast  chan Message
@@ -27,6 +32,11 @@ func (h *Hub) run() {
 			if _, ok := h.clients[client.id]; !ok {
 				newEntry := map[*Client]bool{client: true}
 				h.clients[client.id] = newEntry
+				go func() {
+					time.Sleep(time.Hour * 24)
+					delete(h.clients, client.id)
+					deletePoll(client.id)
+				}()
 			} else {
 				h.clients[client.id][client] = true
 			}
@@ -46,5 +56,19 @@ func (h *Hub) run() {
 				}
 			}
 		}
+	}
+}
+
+func deletePoll(id string) {
+	session, err := mgo.Dial(os.Getenv("MONGODB"))
+	if err != nil {
+		panic(err)
+	}
+	defer session.Close()
+	coll := session.DB("abase").C("pollsv2")
+
+	err = coll.RemoveId(bson.ObjectIdHex(id))
+	if err != nil {
+		fmt.Println(err)
 	}
 }

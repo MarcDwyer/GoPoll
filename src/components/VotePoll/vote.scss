@@ -1,3 +1,27 @@
-.view-poll {
-    min-height: 450px;
+.vote-poll {
+    display: flex;
+
+    .poll-questions {
+        display: flex;
+        flex-direction: column;
+    }
+}
+
+.vote-error {
+    display: flex;
+    flex-direction: column;
+    height: 350px;
+    position: relative;
+
+    span {
+        margin: 10px auto 10px auto;
+        font-size: 24px;
+    }
+    .error-button {
+        position: absolute;
+        bottom: 10px;
+        left: 10px;
+        border: solid 1px black;
+        padding: 10px 10px;
+    }
 }

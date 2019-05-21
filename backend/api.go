@@ -14,8 +14,8 @@ type Poll struct {
 	Id            bson.ObjectId                `json:"_id,omitempty" bson:"_id"`
 	Question      string                       `json:"question,omitempty"`
 	PollQuestions map[string]map[string]string `json:"pollquestions,omitempty"`
-	Error         string                       `json:"error,omitempty"`
-	Type          string                       `json:"type,omitempty"`
+	Error         string                       `json:"error,omitempty" bson:"error,omitempty"`
+	Type          string                       `json:"type,omitempty" bson:"type,omitempty"`
 }
 
 func creatPoll(w http.ResponseWriter, r *http.Request) {
@@ -33,11 +33,9 @@ func creatPoll(w http.ResponseWriter, r *http.Request) {
 	if poll == nil {
 		return
 	}
-	fmt.Println(poll.PollQuestions)
 	for _, v := range poll.PollQuestions {
 		v["count"] = "0"
 	}
-	fmt.Println(poll.PollQuestions)
 	poll.Id = bson.NewObjectId()
 	err = c.Insert(*poll)
 	if err != nil {

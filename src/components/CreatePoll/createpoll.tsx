@@ -70,7 +70,8 @@ class CreatePoll extends Component<IProps, CState> {
                                 return { [key]: pollQuestions[key] }
                             }).filter(item => item).reduce((obj, i) => {
                                 const key = Object.keys(i)
-                                obj[key[0]] = i
+                                const value = Object.values(i)
+                                obj[key[0]] = {question: value[0]}
                                 return obj
                             }, {})
                             const payload = {

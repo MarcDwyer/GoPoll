@@ -16,16 +16,16 @@ interface State {
     error: Error | null;
 }
 export interface Poll {
-    pollQuestions: PollQuestions;
+    pollquestions: PollQuestions;
     type: string;
     question: string;
 
 }
 interface PollQuestions {
     count: string;
-    [poll: string]: string;
+    question: string
 }
-interface Error {
+export interface Error {
     error: string;
     message: string;
     type: string;
@@ -71,9 +71,7 @@ class Homepage extends Component<RouteComponentProps, State> {
         const route = checkRoute(this.props.location.pathname)
         if (route) {
             if (!pollId || pollId && pollId.id !== route.id) {
-                if (ws) {
-                    ws.close()
-                }
+                if (ws) ws.close()
                 const webStr = `ws://${document.location.hostname}:5000/socket/${route.id}`
                 this.setState({ pollId: route, ws: new WebSocket(webStr) }, () => this.setMessage())
             }
@@ -86,13 +84,13 @@ class Homepage extends Component<RouteComponentProps, State> {
         }
     }
     render() {
-    //        console.log(this.state)
+        console.log(this.state)
         return (
             <div className="main">
                 <Nav />
                 <Switch>
-                    <Route path="/view/:id" render={(props) => <ViewPoll {...props} />} />
-                    <Route path="/vote/:id" render={(props) => <VotePoll {...props} ws={this.state.ws} poll={this.state.poll} />} />
+                    <Route path="/view/:id" render={(props) => <ViewPoll {...props} error={this.state.error} poll={this.state.poll} />} />
+                    <Route path="/vote/:id" render={(props) => <VotePoll {...props} ws={this.state.ws} poll={this.state.poll} error={this.state.error} />} />
                     <Route path="/" render={(props) => <CreatePoll {...props} />} />
                 </Switch>
             </div>
@@ -109,8 +107,10 @@ class Homepage extends Component<RouteComponentProps, State> {
             switch (result.type) {
                 case "invalid_id":
                     result.message = "The ID entered seems to be invalid"
+                case "not_found":
+                    result.message = "Poll could not be found"
+                default:
                     this.setState({ error: result, poll: null })
-                    break;
             }
             return
         } else if (this.state.error) {
