@@ -16,6 +16,7 @@ const ViewPoll = (props: IProps) => {
     const { error, poll } = props
 
     const [selected, setSelected] = useState<string>("")
+    const [err, setError] = useState<string | null>(null)
     return (
         <div className="create-poll vote-poll">
             {error && (
@@ -46,7 +47,13 @@ const ViewPoll = (props: IProps) => {
                         })}
                     </div>  
                     {selected.length > 0 && (
-                        <button>Hello</button>
+                        <button
+                        className="submit-button"
+                        onClick={() => {
+                            const { ws } = props
+                            console.log(ws)
+                        }}
+                        >Submit</button>
                     )}
                 </div>
             )}

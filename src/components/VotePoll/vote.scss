@@ -34,6 +34,7 @@
     padding: 15px 15px;
 
     .poll-question {
+        text-transform: capitalize;
         margin-left: auto;
         margin-right: auto;
     }
@@ -47,5 +48,10 @@
         label {
             margin-left: 5px;
         }
+    }
+
+    button {
+        margin-top: 15px;
+        width: 115px;
     }
 }

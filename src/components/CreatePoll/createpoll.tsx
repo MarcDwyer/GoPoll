@@ -113,7 +113,7 @@ class CreatePoll extends Component<IProps, CState> {
                             )
                         })}
                         <div className="button">
-                            <button className={waiter ? "off-button" : ""}>
+                            <button className={`submit-button ${waiter ? "off-button" : ""}`}>
                                 {waiter ? "Waiting..." : "Submit"}
                             </button>
                         </div>
