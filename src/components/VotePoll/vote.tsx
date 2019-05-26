@@ -31,18 +31,23 @@ const ViewPoll = (props: IProps) => {
                         {Object.keys(poll.pollquestions).map(key => {
                             const { pollquestions } = poll
                             return (
-                                <label key={key} >
-                                    {pollquestions[key].question}
+                                <div className="quest" key={key}>
                                     <input
                                         type="radio"
                                         name={key}
                                         checked={selected === key ? true : false}
                                         onChange={(e) => setSelected(e.target.name)}
                                     />
-                                </label>
+                                    <label>
+                                        {pollquestions[key].question}
+                                    </label>
+                                </div>
                             )
                         })}
-                    </div>
+                    </div>  
+                    {selected.length > 0 && (
+                        <button>Hello</button>
+                    )}
                 </div>
             )}
         </div>

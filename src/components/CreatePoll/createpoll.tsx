@@ -63,7 +63,9 @@ class CreatePoll extends Component<IProps, CState> {
                             if (question.length === 0) throw "Please enter a question"
                             const questions = Object.values(pollQuestions)
                             for (let x = 0; x <= 1; x++) {
-                                if (questions[x].length === 0) throw "Poll must have atleast 2 questions"
+                                const len = questions[x].length
+                                if (len === 0) throw "Poll must have atleast 2 questions"
+                                if (len > 48) throw `Question ${x + 1} is too long`
                             }
                             const pollFiltered = Object.keys(pollQuestions).map(key => {
                                 if (pollQuestions[key].length === 0) return

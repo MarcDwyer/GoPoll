@@ -5,6 +5,7 @@
         display: flex;
         flex-direction: column;
     }
+
 }
 
 .vote-error {
@@ -23,5 +24,28 @@
         left: 10px;
         border: solid 1px black;
         padding: 10px 10px;
+    }
+}
+
+
+.vote-success {
+    display: flex;
+    flex-direction: column;
+    padding: 15px 15px;
+
+    .poll-question {
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    .poll-questions {
+        
+        .quest {
+            margin: 5px 10px 5px 10px;
+        }
+
+        label {
+            margin-left: 5px;
+        }
     }
 }
