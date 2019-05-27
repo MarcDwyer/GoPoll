@@ -29,8 +29,8 @@ const ViewPoll = (props: IProps) => {
                 <div className="vote-success">
                     <span className="poll-question">{poll.question}</span>
                     <div className="poll-questions">
-                        {Object.keys(poll.pollquestions).map(key => {
-                            const { pollquestions } = poll
+                        {Object.keys(poll.pollQuestions).map(key => {
+                            const { pollQuestions } = poll
                             return (
                                 <div className="quest" key={key}>
                                     <input
@@ -40,7 +40,7 @@ const ViewPoll = (props: IProps) => {
                                         onChange={(e) => setSelected(e.target.name)}
                                     />
                                     <label>
-                                        {pollquestions[key].question}
+                                        {pollQuestions[key].pollOption}
                                     </label>
                                 </div>
                             )
@@ -51,7 +51,13 @@ const ViewPoll = (props: IProps) => {
                         className="submit-button"
                         onClick={() => {
                             const { ws } = props
-                            console.log(ws)
+                            const payload = {
+                                id: props.match.params.id,
+                                upvote: selected,
+                                type: "upvote"
+                            }
+                            ws.send(JSON.stringify(payload))
+                            props.history.push(`/view/${props.match.params.id}`)
                         }}
                         >Submit</button>
                     )}

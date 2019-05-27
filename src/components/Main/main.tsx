@@ -16,14 +16,14 @@ interface State {
     error: Error | null;
 }
 export interface Poll {
-    pollquestions: PollQuestions;
+    pollQuestions: PollQuestions;
     type: string;
     question: string;
 
 }
 interface PollQuestions {
     count: string;
-    question: string
+    pollOption: string
 }
 export interface Error {
     error: string;
@@ -84,7 +84,6 @@ class Homepage extends Component<RouteComponentProps, State> {
         }
     }
     render() {
-        console.log(this.state)
         return (
             <div className="main">
                 <Nav />
@@ -104,20 +103,31 @@ class Homepage extends Component<RouteComponentProps, State> {
         if (!msg.data) return
         const result = JSON.parse(msg.data)
         if (result.error) {
-            switch (result.type) {
-                case "invalid_id":
-                    result.message = "The ID entered seems to be invalid"
-                case "not_found":
-                    result.message = "Poll could not be found"
-                default:
-                    this.setState({ error: result, poll: null })
-            }
+            this.handleError(result)
             return
         } else if (this.state.error) {
             this.setState({ error: null, poll: result })
             return
         }
-        this.setState({ poll: result })
+        switch (result.type) {
+            case "upvote":
+                const shallow = this.state.poll
+                shallow.pollQuestions[result.upvote].count += 1
+                this.setState({ poll: shallow })
+                break;
+            default:
+                this.setState({ poll: result })
+        }
+    }
+    handleError = (err: Error) => {
+        switch (err.type) {
+            case "invalid_id":
+                err.message = "The ID entered seems to be invalid"
+            case "not_found":
+                err.message = "Poll could not be found"
+            default:
+                this.setState({ error: err, poll: null })
+        }
     }
 }
 

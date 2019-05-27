@@ -1,7 +1,6 @@
 package main
 
 import (
-	"bytes"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -54,9 +53,11 @@ type Client struct {
 	id string
 	ip string
 }
-type Message struct {
-	message []byte
-	id      string
+
+type Upvote struct {
+	ID     string `json:"id"`
+	Upvote string `json:"upvote"`
+	Type   string `json:"type"`
 }
 
 // readPump pumps messages from the websocket connection to the hub.
@@ -80,9 +81,20 @@ func (c *Client) readPump() {
 			}
 			break
 		}
-		message = bytes.TrimSpace(bytes.Replace(message, newline, space, -1))
-		msg := Message{message: message, id: c.id}
-		c.hub.broadcast <- msg
+		msg := Upvote{}
+		json.Unmarshal(message, &msg)
+		fmt.Println(msg)
+		switch msg.Type {
+		case "upvote":
+			fmt.Println(msg)
+			go updatePoll(&msg)
+			c.hub.broadcast <- msg
+			break
+		default:
+			fmt.Println("default ran...")
+		}
+		//	message = bytes.TrimSpace(bytes.Replace(message, newline, space, -1))
+		// c.hub.broadcast <- msg
 	}
 }
 
@@ -173,4 +185,19 @@ func (c *Client) sendPoll() {
 	}
 	getPoll.Type = "poll"
 	payload, _ = json.Marshal(&getPoll)
+}
+func updatePoll(p *Upvote) {
+	session, err := mgo.Dial(os.Getenv("MONGODB"))
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(*p)
+	defer session.Close()
+	coll := session.DB("abase").C("pollsv2")
+	str := fmt.Sprintf("pollQuestions.%v.count", p.Upvote)
+	change := bson.M{"$inc": bson.M{str: 1}}
+	err = coll.UpdateId(bson.ObjectIdHex(p.ID), change)
+	if err != nil {
+		fmt.Println("zone", err)
+	}
 }

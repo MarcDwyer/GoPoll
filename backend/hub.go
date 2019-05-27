@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"time"
@@ -11,14 +12,14 @@ import (
 
 type Hub struct {
 	clients    map[string]map[*Client]bool
-	broadcast  chan Message
+	broadcast  chan Upvote
 	register   chan *Client
 	unregister chan *Client
 }
 
 func newHub() *Hub {
 	return &Hub{
-		broadcast:  make(chan Message),
+		broadcast:  make(chan Upvote),
 		register:   make(chan *Client),
 		unregister: make(chan *Client),
 		clients:    make(map[string]map[*Client]bool),
@@ -46,13 +47,14 @@ func (h *Hub) run() {
 				delete(h.clients[client.id], client)
 				close(client.send)
 			}
-		case clientMsg := <-h.broadcast:
-			for client := range h.clients[clientMsg.id] {
+		case upvote := <-h.broadcast:
+			upvotePayload, _ := json.Marshal(upvote)
+			for client := range h.clients[upvote.ID] {
 				select {
-				case client.send <- clientMsg.message:
+				case client.send <- upvotePayload:
 				default:
 					close(client.send)
-					delete(h.clients[clientMsg.id], client)
+					delete(h.clients[upvote.ID], client)
 				}
 			}
 		}
