@@ -11,10 +11,15 @@ import (
 )
 
 type Hub struct {
-	clients    map[string]map[*Client]bool
+	clients    map[string]SubClients
 	broadcast  chan Upvote
 	register   chan *Client
 	unregister chan *Client
+}
+
+type SubClients struct {
+	Clients   map[*Client]bool
+	Addresses map[string]bool
 }
 
 func newHub() *Hub {
@@ -22,7 +27,7 @@ func newHub() *Hub {
 		broadcast:  make(chan Upvote),
 		register:   make(chan *Client),
 		unregister: make(chan *Client),
-		clients:    make(map[string]map[*Client]bool),
+		clients:    make(map[string]SubClients),
 	}
 }
 
@@ -31,31 +36,43 @@ func (h *Hub) run() {
 		select {
 		case client := <-h.register:
 			if _, ok := h.clients[client.id]; !ok {
-				newEntry := map[*Client]bool{client: true}
-				h.clients[client.id] = newEntry
+				c, i := make(map[*Client]bool), make(map[string]bool)
+				c[client] = true
+				newEntry := &SubClients{Clients: c, Addresses: i}
+				h.clients[client.id] = *newEntry
 				go func() {
-					time.Sleep(time.Hour * 24)
+					time.Sleep(time.Hour * 1)
 					delete(h.clients, client.id)
 					deletePoll(client.id)
 				}()
 			} else {
-				h.clients[client.id][client] = true
+				h.clients[client.id].Clients[client] = true
+				h.clients[client.id].Addresses[client.ip] = true
 			}
 		case client := <-h.unregister:
 			if _, ok := h.clients[client.id]; ok {
 				fmt.Println("client dcd2")
-				delete(h.clients[client.id], client)
+				delete(h.clients[client.id].Clients, client)
 				close(client.send)
 			}
 		case upvote := <-h.broadcast:
-			upvotePayload, _ := json.Marshal(upvote)
-			for client := range h.clients[upvote.ID] {
-				select {
-				case client.send <- upvotePayload:
-				default:
-					close(client.send)
-					delete(h.clients[upvote.ID], client)
+			if _, ok := h.clients[upvote.ID].Addresses[upvote.Client.ip]; !ok {
+				fmt.Println("ip has not voted")
+				h.clients[upvote.ID].Addresses[upvote.Client.ip] = true
+				upvotePayload, _ := json.Marshal(upvote)
+				for client := range h.clients[upvote.ID].Clients {
+					select {
+					case client.send <- upvotePayload:
+					default:
+						close(client.send)
+						delete(h.clients[upvote.ID].Clients, client)
+					}
 				}
+			} else if ok {
+				fmt.Println("has voted")
+				msg := StandardMsg{Message: "You already voted", Error: "duplicate_vote"}
+				payload, _ := json.Marshal(msg)
+				upvote.Client.send <- payload
 			}
 		}
 	}

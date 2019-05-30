@@ -58,6 +58,12 @@ type Upvote struct {
 	ID     string `json:"id"`
 	Upvote string `json:"upvote"`
 	Type   string `json:"type"`
+	Client *Client
+}
+type StandardMsg struct {
+	Message string `json:"message"`
+	Type    string `json:"type,omitempty"`
+	Error   string `json:"error,omitempty"`
 }
 
 // readPump pumps messages from the websocket connection to the hub.
@@ -83,10 +89,9 @@ func (c *Client) readPump() {
 		}
 		msg := Upvote{}
 		json.Unmarshal(message, &msg)
-		fmt.Println(msg)
 		switch msg.Type {
 		case "upvote":
-			fmt.Println(msg)
+			msg.Client = c
 			go updatePoll(&msg)
 			c.hub.broadcast <- msg
 			break
@@ -140,6 +145,9 @@ func (c *Client) writePump() {
 }
 
 func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request, vars map[string]string) {
+	IPAddress := r.Header.Get("X-Real-Ip")
+	fmt.Println(IPAddress)
+
 	if _, ok := vars["id"]; !ok {
 		fmt.Println("id not found")
 		return
@@ -150,7 +158,7 @@ func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request, vars map[string]s
 		return
 	}
 	client := &Client{hub: hub, conn: conn, send: make(chan []byte, 256), id: vars["id"]}
-	client.ip = client.conn.LocalAddr().String()
+	client.ip = client.conn.RemoteAddr().String()
 	client.hub.register <- client
 	go client.sendPoll()
 	go client.writePump()
@@ -191,7 +199,6 @@ func updatePoll(p *Upvote) {
 	if err != nil {
 		panic(err)
 	}
-	fmt.Println(*p)
 	defer session.Close()
 	coll := session.DB("abase").C("pollsv2")
 	str := fmt.Sprintf("pollQuestions.%v.count", p.Upvote)

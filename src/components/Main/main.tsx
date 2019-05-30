@@ -102,6 +102,7 @@ class Homepage extends Component<RouteComponentProps, State> {
     readWs = (msg: any) => {
         if (!msg.data) return
         const result = JSON.parse(msg.data)
+        console.log(result)
         if (result.error) {
             this.handleError(result)
             return

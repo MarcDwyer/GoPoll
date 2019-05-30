@@ -67,7 +67,7 @@ class CreatePoll extends Component<IProps, CState> {
                                 if (len === 0) throw "Poll must have atleast 2 questions"
                                 if (len > 48) throw `Question ${x + 1} is too long`
                             }
-                            const pollFiltered = Object.keys(pollQuestions).map(key => {
+                            const pollFiltered = [...Object.keys(pollQuestions)].map(key => {
                                 if (pollQuestions[key].length === 0) return
                                 return { [key]: pollQuestions[key] }
                             }).filter(item => item).reduce((obj, i) => {

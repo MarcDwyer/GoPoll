@@ -11,17 +11,53 @@ interface Props {
 
 const ViewPoll = (props:Props) => {
     let data ={}
-    if (props.poll) {
-        data["labels"] = props.poll.question
-        data["count"] = Object.values(props.poll.pollQuestions).filter(item => item.count)
-        data["datasets"] = Object.values(props.poll.pollQuestions).filter(item => item.pollOption)
+    let total = 0
+    const options = {
+        legend: {
+            labels: {
+                fontColor: "black"
+            }
+        },
+        scales: {
+            yAxes: [{
+                ticks: {
+                    beginAtZero: true,
+                    suggestedMin: 0,
+                    suggestedMax: total,
+                    fontColor: 'black'
+                }
+            }],
+            xAxes: [{
+                ticks: {
+                    fontColor: 'black'
+                }
+            }]
+        }
     }
-    console.log(data)
+    if (props.poll) {
+        const pollData = Object.values(props.poll.pollQuestions)
+        const obj = {
+            labels: pollData.map(obj => `${obj.pollOption} ${obj.count} votes`),
+            datasets: [
+                {
+                    label: props.poll.question,
+                    data: pollData.map(obj => obj.count),
+                    backgroundColor: "rgba(178,53,53,.75)",
+                    hoverBackgroundColor: "rgba(178,53,53,.85)"
+                }
+            ]
+        }
+        total = pollData.reduce((int, item) => {
+            return int += item.count
+        }, 0)
+        data = obj
+    }
     return (
         <div className="create-poll results">
             {props.poll && (
                 <Bar 
                 data={data}
+                options={options}
                 />
             )}
         </div>
