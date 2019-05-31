@@ -90,9 +90,7 @@ class Homepage extends Component<RouteComponentProps, State> {
         return (
             <div className="main">
                 <Nav />
-                {this.state.poll && (
-                    <SharePoll id={this.state.poll._id} />
-                )}
+                    <SharePoll id={this.state.poll ? this.state.poll._id : null } />
                 <Switch>
                     <Route path="/view/:id" render={(props) => <ViewPoll {...props} poll={this.state.poll} />} />
                     <Route path="/vote/:id" render={(props) => <VotePoll {...props} ws={this.state.ws} poll={this.state.poll} error={this.state.error} />} />
