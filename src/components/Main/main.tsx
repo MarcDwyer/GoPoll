@@ -7,6 +7,7 @@ import CreatePoll from '../CreatePoll/createpoll'
 import ViewPoll from '../ViewPoll/viewpoll'
 import VotePoll from '../VotePoll/vote'
 import Nav from '../Nav/navbar'
+import SharePoll from '../SharePoll/sharepoll'
 
 interface State {
     ws: WebSocket | null;
@@ -19,6 +20,7 @@ export interface Poll {
     pollQuestions: PollQuestions;
     type: string;
     question: string;
+    _id: string;
 
 }
 interface PollQuestions {
@@ -84,11 +86,15 @@ class Homepage extends Component<RouteComponentProps, State> {
         }
     }
     render() {
+        console.log(this.state)
         return (
             <div className="main">
                 <Nav />
+                {this.state.poll && (
+                    <SharePoll id={this.state.poll._id} />
+                )}
                 <Switch>
-                    <Route path="/view/:id" render={(props) => <ViewPoll {...props} error={this.state.error} poll={this.state.poll} />} />
+                    <Route path="/view/:id" render={(props) => <ViewPoll {...props} poll={this.state.poll} />} />
                     <Route path="/vote/:id" render={(props) => <VotePoll {...props} ws={this.state.ws} poll={this.state.poll} error={this.state.error} />} />
                     <Route path="/" render={(props) => <CreatePoll {...props} />} />
                 </Switch>
@@ -102,7 +108,6 @@ class Homepage extends Component<RouteComponentProps, State> {
     readWs = (msg: any) => {
         if (!msg.data) return
         const result = JSON.parse(msg.data)
-        console.log(result)
         if (result.error) {
             this.handleError(result)
             return
@@ -126,6 +131,9 @@ class Homepage extends Component<RouteComponentProps, State> {
                 err.message = "The ID entered seems to be invalid"
             case "not_found":
                 err.message = "Poll could not be found"
+            case "duplicate_ip":
+                this.setState({ error: err })
+                break;
             default:
                 this.setState({ error: err, poll: null })
         }

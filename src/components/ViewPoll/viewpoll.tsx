@@ -1,16 +1,14 @@
 import React from 'react'
 import { Error, Poll } from '../Main/main'
 import { Bar } from 'react-chartjs-2'
-
 import './viewpoll.scss'
 
 interface Props {
     poll: Poll | null;
-    error: Error | null;
 }
 
-const ViewPoll = (props:Props) => {
-    let data ={}
+const ViewPoll = (props: Props) => {
+    let data = {}
     let total = 0
     const options = {
         legend: {
@@ -53,11 +51,11 @@ const ViewPoll = (props:Props) => {
         data = obj
     }
     return (
-        <div className="create-poll results">
+        <div className={`create-poll results`}>
             {props.poll && (
-                <Bar 
-                data={data}
-                options={options}
+                <Bar
+                    data={data}
+                    options={options}
                 />
             )}
         </div>

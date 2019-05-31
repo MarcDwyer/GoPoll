@@ -56,23 +56,16 @@ func (h *Hub) run() {
 				close(client.send)
 			}
 		case upvote := <-h.broadcast:
-			if _, ok := h.clients[upvote.ID].Addresses[upvote.Client.ip]; !ok {
-				fmt.Println("ip has not voted")
-				h.clients[upvote.ID].Addresses[upvote.Client.ip] = true
-				upvotePayload, _ := json.Marshal(upvote)
-				for client := range h.clients[upvote.ID].Clients {
-					select {
-					case client.send <- upvotePayload:
-					default:
-						close(client.send)
-						delete(h.clients[upvote.ID].Clients, client)
-					}
+			fmt.Println("ip has not voted")
+			h.clients[upvote.ID].Addresses[upvote.Client.ip] = true
+			upvotePayload, _ := json.Marshal(upvote)
+			for client := range h.clients[upvote.ID].Clients {
+				select {
+				case client.send <- upvotePayload:
+				default:
+					close(client.send)
+					delete(h.clients[upvote.ID].Clients, client)
 				}
-			} else if ok {
-				fmt.Println("has voted")
-				msg := StandardMsg{Message: "You already voted", Error: "duplicate_vote"}
-				payload, _ := json.Marshal(msg)
-				upvote.Client.send <- payload
 			}
 		}
 	}

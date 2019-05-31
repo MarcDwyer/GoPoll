@@ -92,11 +92,12 @@ func (c *Client) readPump() {
 		switch msg.Type {
 		case "upvote":
 			msg.Client = c
+			fmt.Println(msg)
 			go updatePoll(&msg)
 			c.hub.broadcast <- msg
-			break
 		default:
 			fmt.Println("default ran...")
+			c.hub.broadcast <- msg
 		}
 		//	message = bytes.TrimSpace(bytes.Replace(message, newline, space, -1))
 		// c.hub.broadcast <- msg
@@ -158,6 +159,7 @@ func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request, vars map[string]s
 		return
 	}
 	client := &Client{hub: hub, conn: conn, send: make(chan []byte, 256), id: vars["id"]}
+	// this needs to be LocalAddr for deployment
 	client.ip = client.conn.RemoteAddr().String()
 	client.hub.register <- client
 	go client.sendPoll()
@@ -194,6 +196,7 @@ func (c *Client) sendPoll() {
 	getPoll.Type = "poll"
 	payload, _ = json.Marshal(&getPoll)
 }
+
 func updatePoll(p *Upvote) {
 	session, err := mgo.Dial(os.Getenv("MONGODB"))
 	if err != nil {

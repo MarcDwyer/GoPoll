@@ -2,7 +2,7 @@ import React, { useState } from 'react'
 import { RouteComponentProps } from 'react-router';
 import { Link } from 'react-router-dom'
 import { Poll, Error } from '../Main/main'
-
+import { Radio } from '@material-ui/core'
 import './vote.scss'
 
 interface IProps extends RouteComponentProps<{ id: string }> {
@@ -33,8 +33,8 @@ const ViewPoll = (props: IProps) => {
                             const { pollQuestions } = poll
                             return (
                                 <div className="quest" key={key}>
-                                    <input
-                                        type="radio"
+                                    <Radio
+                                        className="radio-button"
                                         name={key}
                                         checked={selected === key ? true : false}
                                         onChange={(e) => setSelected(e.target.name)}
@@ -45,20 +45,20 @@ const ViewPoll = (props: IProps) => {
                                 </div>
                             )
                         })}
-                    </div>  
+                    </div>
                     {selected.length > 0 && (
                         <button
-                        className="submit-button"
-                        onClick={() => {
-                            const { ws } = props
-                            const payload = {
-                                id: props.match.params.id,
-                                upvote: selected,
-                                type: "upvote"
-                            }
-                            ws.send(JSON.stringify(payload))
-                            props.history.push(`/view/${props.match.params.id}`)
-                        }}
+                            className="submit-button"
+                            onClick={() => {
+                                const { ws } = props
+                                const payload = {
+                                    id: props.match.params.id,
+                                    upvote: selected,
+                                    type: "upvote"
+                                }
+                                ws.send(JSON.stringify(payload))
+                                props.history.push(`/view/${props.match.params.id}`)
+                            }}
                         >Submit</button>
                     )}
                 </div>
