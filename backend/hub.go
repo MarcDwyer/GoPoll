@@ -56,7 +56,6 @@ func (h *Hub) run() {
 				close(client.send)
 			}
 		case upvote := <-h.broadcast:
-			fmt.Println("ip has not voted")
 			h.clients[upvote.ID].Addresses[upvote.Client.ip] = true
 			upvotePayload, _ := json.Marshal(upvote)
 			for client := range h.clients[upvote.ID].Clients {

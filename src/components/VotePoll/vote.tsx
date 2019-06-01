@@ -16,9 +16,13 @@ const ViewPoll = (props: IProps) => {
     const { error, poll } = props
 
     const [selected, setSelected] = useState<string>("")
-    const [err, setError] = useState<string | null>(null)
     return (
         <div className="create-poll vote-poll">
+            {!poll && (
+                <h2 
+                style={{margin: "auto"}}
+                className="poll-question">Fetching Poll...</h2>
+            )}
             {error && (
                 <div className="vote-error">
                     <span>{error.message}</span>

@@ -1,5 +1,5 @@
 import React from 'react'
-import { Error, Poll } from '../Main/main'
+import { Poll } from '../Main/main'
 import { Bar } from 'react-chartjs-2'
 import './viewpoll.scss'
 
@@ -10,28 +10,7 @@ interface Props {
 const ViewPoll = (props: Props) => {
     let data = {}
     let total = 0
-    const options = {
-        legend: {
-            labels: {
-                fontColor: "black"
-            }
-        },
-        scales: {
-            yAxes: [{
-                ticks: {
-                    beginAtZero: true,
-                    suggestedMin: 0,
-                    suggestedMax: total,
-                    fontColor: 'black'
-                }
-            }],
-            xAxes: [{
-                ticks: {
-                    fontColor: 'black'
-                }
-            }]
-        }
-    }
+    let options = {}
     if (props.poll) {
         const pollData = Object.values(props.poll.pollQuestions)
         const obj = {
@@ -49,7 +28,32 @@ const ViewPoll = (props: Props) => {
             return int += item.count
         }, 0)
         data = obj
+
+        options = {
+            legend: {
+                labels: {
+                    fontColor: "black"
+                }
+            },
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true,
+                        suggestedMin: 0,
+                        suggestedMax: total,
+                        fontColor: 'black',
+                        stepSize: 1
+                    }
+                }],
+                xAxes: [{
+                    ticks: {
+                        fontColor: 'black'
+                    }
+                }]
+            }
+        }
     }
+
     return (
         <div className={`create-poll results`}>
             {props.poll && (

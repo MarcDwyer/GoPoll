@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react'
+import React, { useState } from 'react'
 import { TextField } from '@material-ui/core'
 import { Button } from '@material-ui/core'
 import { CopyToClipboard } from 'react-copy-to-clipboard';

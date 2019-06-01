@@ -8,6 +8,7 @@ import ViewPoll from '../ViewPoll/viewpoll'
 import VotePoll from '../VotePoll/vote'
 import Nav from '../Nav/navbar'
 import SharePoll from '../SharePoll/sharepoll'
+import ErrorScreen from '../Error/error'
 
 interface State {
     ws: WebSocket | null;
@@ -49,6 +50,11 @@ const checkRoute = (path: string) => {
     }
 }
 class Homepage extends Component<RouteComponentProps, State> {
+    public webSocket
+    constructor(props) {
+        super(props);
+        this.webSocket = `wss://${document.location.hostname}/socket/`
+    }
     state = {
         ws: null,
         poll: null,
@@ -64,18 +70,20 @@ class Homepage extends Component<RouteComponentProps, State> {
     componentDidMount() {
         const { pollId, ws } = this.state
         if (!ws && pollId && pollId.id.length > 0) {
-            const webStr = `ws://${document.location.hostname}:5000/socket/${pollId.id}`
+            const webStr = this.webSocket + pollId
             this.setState({ ws: new WebSocket(webStr) }, () => this.setMessage())
         }
     }
     componentDidUpdate() {
-        const { pollId, ws } = this.state
+        const { pollId, ws, error } = this.state
         const route = checkRoute(this.props.location.pathname)
         if (route) {
             if (!pollId || pollId && pollId.id !== route.id) {
                 if (ws) ws.close()
-                const webStr = `ws://${document.location.hostname}:5000/socket/${route.id}`
+                const webStr = this.webSocket + route.id
                 this.setState({ pollId: route, ws: new WebSocket(webStr) }, () => this.setMessage())
+            } else if (error) {
+                this.props.history.push("/error")
             }
         } else {
             if (pollId) {
@@ -94,6 +102,7 @@ class Homepage extends Component<RouteComponentProps, State> {
                 <Switch>
                     <Route path="/view/:id" render={(props) => <ViewPoll {...props} poll={this.state.poll} />} />
                     <Route path="/vote/:id" render={(props) => <VotePoll {...props} ws={this.state.ws} poll={this.state.poll} error={this.state.error} />} />
+                    <Route path="/error" render={(props) => <ErrorScreen {...props} error={this.state.error} clearError={this.clearError} />} />
                     <Route path="/" render={(props) => <CreatePoll {...props} />} />
                 </Switch>
             </div>
@@ -133,8 +142,13 @@ class Homepage extends Component<RouteComponentProps, State> {
                 this.setState({ error: err })
                 break;
             default:
-                this.setState({ error: err, poll: null })
+                this.setState({ error: err, poll: null, ws: null }, () => {
+                    this.state.ws.close()
+                })
         }
+    }
+    clearError = () => {
+       this.setState({error: null}) 
     }
 }
 

@@ -161,24 +161,30 @@ func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request, vars map[string]s
 	client := &Client{hub: hub, conn: conn, send: make(chan []byte, 256), id: vars["id"]}
 	// this needs to be LocalAddr for deployment
 	client.ip = client.conn.RemoteAddr().String()
-	client.hub.register <- client
-	go client.sendPoll()
 	go client.writePump()
 	go client.readPump()
+
+	ch := getPoll(vars["id"])
+	if ch == nil {
+		fmt.Println("Poll could not be found")
+		msg := StandardMsg{Message: "Poll could not be found", Type: "error", Error: "invalid_id"}
+		rz, _ := json.Marshal(msg)
+		client.send <- rz
+		return
+	}
+	client.hub.register <- client
+	client.send <- ch
 }
 
-func (c *Client) sendPoll() {
+func getPoll(id string) []byte {
 	fmt.Println("sent post sent...")
 	getPoll := &Poll{}
 	payload := []byte{}
-	defer func() {
-		payload, _ = json.Marshal(&getPoll)
-		c.send <- payload
-	}()
-	if ok := bson.IsObjectIdHex(c.id); !ok {
+
+	if ok := bson.IsObjectIdHex(id); !ok {
 		getPoll.Error = "ID not found"
 		getPoll.Type = "invalid_id"
-		return
+		return nil
 	}
 	session, err := mgo.Dial(os.Getenv("MONGODB"))
 	if err != nil {
@@ -187,14 +193,15 @@ func (c *Client) sendPoll() {
 	defer session.Close()
 	coll := session.DB("abase").C("pollsv2")
 
-	err = coll.FindId(bson.ObjectIdHex(c.id)).One(&getPoll)
+	err = coll.FindId(bson.ObjectIdHex(id)).One(&getPoll)
 	if err != nil {
 		getPoll.Error = "Poll not found"
 		getPoll.Type = "not_found"
-		return
+		return nil
 	}
 	getPoll.Type = "poll"
 	payload, _ = json.Marshal(&getPoll)
+	return payload
 }
 
 func updatePoll(p *Upvote) {
