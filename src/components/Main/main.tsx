@@ -87,6 +87,7 @@ class Homepage extends Component<RouteComponentProps, State> {
             }
         } else {
             if (pollId) {
+                console.log('is this the error?')
                 ws.close()
                 ws.removeEventListener('message', this.setMessage)
                 this.setState({ pollId: null, ws: null, poll: null })
