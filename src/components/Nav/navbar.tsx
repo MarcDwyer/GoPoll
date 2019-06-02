@@ -8,7 +8,7 @@ const Navbar = () => {
     return (
         <nav>
             <Link to="/" className="brand-logo">
-                <h4>Go Poll</h4>
+                <h4>GoPoll.me</h4>
             </Link>
         </nav>
     )

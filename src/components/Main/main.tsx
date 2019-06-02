@@ -13,7 +13,7 @@ import ErrorScreen from '../Error/error'
 interface State {
     ws: WebSocket | null;
     poll: Poll | null;
-    creator: boolean;
+    show: boolean;
     pollId: ID | null;
     error: Error | null;
 }
@@ -53,14 +53,14 @@ class Homepage extends Component<RouteComponentProps, State> {
     public webSocket
     constructor(props) {
         super(props);
-        this.webSocket = `wss://${document.location.hostname}/socket/`
-    }
-    state = {
-        ws: null,
-        poll: null,
-        creator: false,
-        pollId: checkRoute(this.props.location.pathname),
-        error: null
+        this.state = {
+            ws: null,
+            poll: null,
+            pollId: checkRoute(this.props.location.pathname),
+            error: null,
+            show: false
+        }
+        this.webSocket = `wss://${document.location.host}/socket/`
     }
     componentWillUnmount() {
         if (this.state.ws) {
@@ -70,8 +70,14 @@ class Homepage extends Component<RouteComponentProps, State> {
     componentDidMount() {
         const { pollId, ws } = this.state
         if (!ws && pollId && pollId.id.length > 0) {
-            const webStr = this.webSocket + pollId
+            const webStr = this.webSocket + pollId.id
             this.setState({ ws: new WebSocket(webStr) }, () => this.setMessage())
+        } else if (!pollId) {
+            setTimeout(() => {
+                this.setState({ show: true }, () => {
+                    setTimeout(() => this.setState({ show: false }), 3500)
+                })
+            }, 100)
         }
     }
     componentDidUpdate() {
@@ -87,7 +93,6 @@ class Homepage extends Component<RouteComponentProps, State> {
             }
         } else {
             if (pollId) {
-                console.log('is this the error?')
                 ws.close()
                 ws.removeEventListener('message', this.setMessage)
                 this.setState({ pollId: null, ws: null, poll: null })
@@ -99,7 +104,7 @@ class Homepage extends Component<RouteComponentProps, State> {
         return (
             <div className="main">
                 <Nav />
-                    <SharePoll id={this.state.poll ? this.state.poll._id : null } />
+                    <SharePoll id={this.state.poll ? this.state.poll._id : null } show={this.state.show} />
                 <Switch>
                     <Route path="/view/:id" render={(props) => <ViewPoll {...props} poll={this.state.poll} />} />
                     <Route path="/vote/:id" render={(props) => <VotePoll {...props} ws={this.state.ws} poll={this.state.poll} error={this.state.error} />} />
@@ -134,6 +139,7 @@ class Homepage extends Component<RouteComponentProps, State> {
         }
     }
     handleError = (err: Error) => {
+       const { ws } = this.state
         switch (err.type) {
             case "invalid_id":
                 err.message = "The ID entered seems to be invalid"
@@ -143,9 +149,8 @@ class Homepage extends Component<RouteComponentProps, State> {
                 this.setState({ error: err })
                 break;
             default:
-                this.setState({ error: err, poll: null, ws: null }, () => {
-                    this.state.ws.close()
-                })
+                ws.close()
+                this.setState({ error: err, poll: null, ws: null })
         }
     }
     clearError = () => {

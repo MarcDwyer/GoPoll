@@ -16,12 +16,15 @@ const ViewPoll = (props: IProps) => {
     const { error, poll } = props
 
     const [selected, setSelected] = useState<string>("")
+
+    const notTicked = selected.length > 0 ? false : true
+    console.log(selected.length)
     return (
         <div className="create-poll vote-poll">
             {!poll && (
-                <h2 
-                style={{margin: "auto"}}
-                className="poll-question">Fetching Poll...</h2>
+                <h2
+                    style={{ margin: "auto" }}
+                    className="poll-question">Fetching Poll...</h2>
             )}
             {error && (
                 <div className="vote-error">
@@ -50,21 +53,23 @@ const ViewPoll = (props: IProps) => {
                             )
                         })}
                     </div>
-                    {selected.length > 0 && (
-                        <button
-                            className="submit-button"
-                            onClick={() => {
-                                const { ws } = props
-                                const payload = {
-                                    id: props.match.params.id,
-                                    upvote: selected,
-                                    type: "upvote"
-                                }
-                                ws.send(JSON.stringify(payload))
-                                props.history.push(`/view/${props.match.params.id}`)
-                            }}
-                        >Submit</button>
-                    )}
+                    <button
+                        className={`submit-button ${notTicked ? "disable-btn" : ""}`}
+                        disabled={notTicked}
+                        onClick={() => {
+                            console.log('penis')
+                            const { ws } = props
+                            const payload = {
+                                id: props.match.params.id,
+                                upvote: selected,
+                                type: "upvote"
+                            }
+                            ws.send(JSON.stringify(payload))
+                            props.history.push(`/view/${props.match.params.id}`)
+                        }}
+                    >
+                        {notTicked ? "Select..." : "Submit"}
+                        </button>
                 </div>
             )}
         </div>

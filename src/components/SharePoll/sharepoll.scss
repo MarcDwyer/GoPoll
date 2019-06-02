@@ -4,16 +4,34 @@
     right: 0;
     bottom: 0;
     border-top-left-radius: 10px;
-    transition: 0.5s ease;
+    transition: 0.75s ease;
+    z-index: 5000;
+    min-height: 125px;
+    box-shadow: 15px 25px #888888;
 
     .inner-share {
         padding: 10px 10px;
-        display: flex;
-        flex-direction: column;
         width: 375px;
+
+        div {
+            display: flex;
+            flex-direction: column;
+        }
     }
 }
 
 .hide {
     right: -500px;
+}
+
+.welcome {
+    display: flex;
+    text-align: center;
+
+    div {
+        margin: auto;
+        h2 {
+            margin: 0;
+        }
+    }
 }
