@@ -9,6 +9,7 @@ import VotePoll from '../VotePoll/vote'
 import Nav from '../Nav/navbar'
 import SharePoll from '../SharePoll/sharepoll'
 import ErrorScreen from '../Error/error'
+import About from '../About/about'
 
 interface State {
     ws: WebSocket | null;
@@ -100,7 +101,6 @@ class Homepage extends Component<RouteComponentProps, State> {
         }
     }
     render() {
-        console.log(this.state)
         return (
             <div className="main">
                 <Nav />
@@ -109,6 +109,7 @@ class Homepage extends Component<RouteComponentProps, State> {
                     <Route path="/view/:id" render={(props) => <ViewPoll {...props} poll={this.state.poll} />} />
                     <Route path="/vote/:id" render={(props) => <VotePoll {...props} ws={this.state.ws} poll={this.state.poll} error={this.state.error} />} />
                     <Route path="/error" render={(props) => <ErrorScreen {...props} error={this.state.error} clearError={this.clearError} />} />
+                    <Route path="/about" component={About} />
                     <Route path="/" render={(props) => <CreatePoll {...props} />} />
                 </Switch>
             </div>

@@ -16,4 +16,14 @@ nav {
             margin: 0;
         }
     }
+    .links {
+        font-size: 26px;
+        margin: 5px 10px 5px auto;
+
+        .about-link {
+            border-left: solid 1px black;
+            border-right: solid 1px black;
+            padding: 0 10px 0 10px;
+        }
+    }
 }

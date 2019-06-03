@@ -101,7 +101,6 @@ const CreatePoll = (props: IProps) => {
                             body: JSON.stringify(payload)
                         })
                         const data: string = await send.json();
-                        console.log(data)
                         if (!data) return
                         setWaiter(false)
                         props.history.push(`/vote/${data}`)

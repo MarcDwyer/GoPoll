@@ -31,7 +31,6 @@ const SharePoll = (props: Props) => {
         if (show) return "welcome-screen"
         return ""
     }
-    console.log(welcome)
     return (
         <div className={`master-share ${show || id ? "" : "hide"} ${getClass()}`} ref={welcome}>
             <div className="inner-share">

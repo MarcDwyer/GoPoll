@@ -18,7 +18,6 @@ const ViewPoll = (props: IProps) => {
     const [selected, setSelected] = useState<string>("")
 
     const notTicked = selected.length > 0 ? false : true
-    console.log(selected.length)
     return (
         <div className="create-poll vote-poll">
             {!poll && (
@@ -57,7 +56,6 @@ const ViewPoll = (props: IProps) => {
                         className={`submit-button ${notTicked ? "disable-btn" : ""}`}
                         disabled={notTicked}
                         onClick={() => {
-                            console.log('penis')
                             const { ws } = props
                             const payload = {
                                 id: props.match.params.id,
