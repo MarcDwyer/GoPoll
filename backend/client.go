@@ -92,7 +92,6 @@ func (c *Client) readPump() {
 		switch msg.Type {
 		case "upvote":
 			msg.Client = c
-			fmt.Println(msg)
 			go updatePoll(&msg)
 			c.hub.broadcast <- msg
 		default:
@@ -158,9 +157,7 @@ func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request, vars map[string]s
 		log.Println(err)
 		return
 	}
-	client := &Client{hub: hub, conn: conn, send: make(chan []byte, 256), id: vars["id"]}
-	// this needs to be LocalAddr for deployment
-	client.ip = client.conn.RemoteAddr().String()
+	client := &Client{hub: hub, conn: conn, send: make(chan []byte, 256), id: vars["id"], ip: IPAddress}
 	go client.writePump()
 	go client.readPump()
 
@@ -172,14 +169,19 @@ func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request, vars map[string]s
 		client.send <- rz
 		return
 	}
-	client.hub.register <- client
-	client.send <- ch
+	reg := &InitPoll{client: client, ipFilter: ch.IpFilter}
+	client.hub.register <- reg
+	fmt.Println(ch)
+	rz, err := json.Marshal(ch)
+	if err != nil {
+		fmt.Println(err)
+	}
+	client.send <- rz
 }
 
-func getPoll(id string) []byte {
+func getPoll(id string) *Poll {
 	fmt.Println("sent post sent...")
 	getPoll := &Poll{}
-	payload := []byte{}
 
 	if ok := bson.IsObjectIdHex(id); !ok {
 		getPoll.Error = "ID not found"
@@ -200,8 +202,7 @@ func getPoll(id string) []byte {
 		return nil
 	}
 	getPoll.Type = "poll"
-	payload, _ = json.Marshal(&getPoll)
-	return payload
+	return getPoll
 }
 
 func updatePoll(p *Upvote) {

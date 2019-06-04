@@ -1,0 +1,22 @@
+.inner-about {
+    width: 90%;
+    margin: auto;
+    display: flex;
+    flex-direction: column;
+
+    * {
+        margin: auto;
+    }
+
+    p {
+        font-size: 18px;
+    }
+
+    .social {
+        margin: 25px auto auto auto;
+
+        a {
+            font-size: 55px;
+        }
+    }
+}

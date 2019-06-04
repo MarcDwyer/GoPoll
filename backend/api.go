@@ -38,12 +38,12 @@ func creatPoll(w http.ResponseWriter, r *http.Request) {
 	if poll == nil {
 		return
 	}
+	fmt.Println(poll)
 	poll.Id = bson.NewObjectId()
 	err = c.Insert(*poll)
 	if err != nil {
 		fmt.Println(err)
 	}
-	fmt.Println(poll)
 	rz, _ := json.Marshal(poll.Id)
 	w.Write(rz)
 }
