@@ -102,7 +102,6 @@ class Homepage extends Component<RouteComponentProps, State> {
         }
     }
     render() {
-        console.log(this.state)
         return (
             <div className="main">
                 <Nav clearError={this.clearError} />
