@@ -13,6 +13,7 @@ import (
 type Poll struct {
 	Id            bson.ObjectId      `json:"_id,omitempty" bson:"_id"`
 	Question      string             `json:"question,omitempty"`
+	IpFilter      bool               `json:"ipFilter,omitempty" bson:"ipFilter"`
 	PollQuestions map[string]subPoll `json:"pollQuestions,omitempty" bson:"pollQuestions"`
 	Error         string             `json:"error,omitempty" bson:"error,omitempty"`
 	Type          string             `json:"type,omitempty" bson:"type,omitempty"`
@@ -37,12 +38,12 @@ func creatPoll(w http.ResponseWriter, r *http.Request) {
 	if poll == nil {
 		return
 	}
-	fmt.Println(poll)
 	poll.Id = bson.NewObjectId()
 	err = c.Insert(*poll)
 	if err != nil {
 		fmt.Println(err)
 	}
+	fmt.Println(poll)
 	rz, _ := json.Marshal(poll.Id)
 	w.Write(rz)
 }

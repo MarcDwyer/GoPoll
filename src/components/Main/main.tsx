@@ -20,6 +20,7 @@ interface State {
 }
 export interface Poll {
     pollQuestions: PollQuestions;
+    ipFilter: boolean;
     type: string;
     question: string;
     _id: string;
@@ -101,10 +102,11 @@ class Homepage extends Component<RouteComponentProps, State> {
         }
     }
     render() {
+        console.log(this.state)
         return (
             <div className="main">
-                <Nav />
-                    <SharePoll id={this.state.poll ? this.state.poll._id : null } show={this.state.show} />
+                <Nav clearError={this.clearError} />
+                <SharePoll id={this.state.poll ? this.state.poll._id : null} show={this.state.show} />
                 <Switch>
                     <Route path="/view/:id" render={(props) => <ViewPoll {...props} poll={this.state.poll} />} />
                     <Route path="/vote/:id" render={(props) => <VotePoll {...props} ws={this.state.ws} poll={this.state.poll} error={this.state.error} />} />
@@ -140,7 +142,7 @@ class Homepage extends Component<RouteComponentProps, State> {
         }
     }
     handleError = (err: Error) => {
-       const { ws } = this.state
+        const { ws } = this.state
         switch (err.type) {
             case "invalid_id":
                 err.message = "The ID entered seems to be invalid"
@@ -155,7 +157,8 @@ class Homepage extends Component<RouteComponentProps, State> {
         }
     }
     clearError = () => {
-       this.setState({error: null}) 
+        if (!this.state.error) return
+        this.setState({ error: null })
     }
 }
 

@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from 'react'
 import './createpoll.scss'
 import { RouteComponentProps } from 'react-router';
+import Checkbox from '@material-ui/core/Checkbox';
 
 import { Formik, Form, Field, ErrorMessage } from 'formik'
 import * as yup from 'yup'
@@ -9,6 +10,7 @@ interface IProps extends RouteComponentProps<{ id: string }> {
 }
 interface Poll {
     question: string;
+    ipFilter: boolean;
     pollQuestions: PollQ;
 }
 interface PollQ {
@@ -36,6 +38,7 @@ const orangizePayload = (payload: Poll) => {
 
     return {
         question: payload.question,
+        ipFilter: payload.ipFilter,
         pollQuestions: pollQuest
     }
 }
@@ -59,19 +62,6 @@ const CreatePoll = (props: IProps) => {
     const [ierr, setIerr] = useState<string | null>(null)
     let counter = useRef<number>(2)
 
-
-    useEffect(() => {
-        let timeout;
-        if (waiter) {
-           timeout = setTimeout(() => {
-                setWaiter(false)
-            }, 3500)
-        } else {
-            clearTimeout(timeout)
-        }
-        return clearTimeout(timeout)
-    }, [waiter])
-
     return (
         <div className="create-poll">
             {ierr && (
@@ -80,6 +70,7 @@ const CreatePoll = (props: IProps) => {
             <Formik
                 initialValues={{
                     question: "",
+                    ipFilter: false,
                     pollQuestions: {
                         poll1: "",
                         poll2: "",
@@ -105,7 +96,9 @@ const CreatePoll = (props: IProps) => {
                         setWaiter(false)
                         props.history.push(`/vote/${data}`)
                     } catch (err) {
-                        console.log(err)
+                        setTimeout(() => {
+                            setWaiter(false)
+                        }, 1000)
                         setIerr("Sever error... try again")
                     }
                 }}
@@ -154,7 +147,23 @@ const CreatePoll = (props: IProps) => {
                                     </div>
                                 )
                             })}
-                            <div className="button">
+                            <Field
+                                type="checkbox"
+                                name="ipFilter"
+                                checked={values.ipFilter}
+                                value={values.ipFilter}
+                                render={({ field, form }) => {
+                                    return (
+                                        <label>
+                                            <Checkbox
+                                                {...field}
+                                            />
+                                            Check for duplicate Ips?
+                                           </label>
+                                    )
+                                }}
+                            />
+                            <div className="button-div">
                                 <button type="submit" disabled={waiter} className={`submit-button ${waiter ? "off-button" : ""}`}>
                                     {waiter ? "Waiting..." : "Submit"}
                                 </button>
