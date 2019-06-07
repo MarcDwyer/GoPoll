@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useRef } from 'react'
 import './createpoll.scss'
 import { RouteComponentProps } from 'react-router';
 import Checkbox from '@material-ui/core/Checkbox';
@@ -25,20 +25,19 @@ interface PollQ {
     poll8: string;
 }
 const orangizePayload = (payload: Poll) => {
-    const pollQuest = Object.keys(payload.pollQuestions).map(key => {
-        const { pollQuestions } = payload
-        if (pollQuestions[key].length === 0) return
-        return { [key]: pollQuestions[key] }
-    }).filter(item => item).reduce((obj, i) => {
-        const key = Object.keys(i)
-        const value = Object.values(i)
-        obj[key[0]] = { pollOption: value[0] }
+    const filterThis = Object.keys(payload.pollQuestions)
+    for (let x = 0; filterThis.length > x; x++) {
+        if (payload.pollQuestions[filterThis[x]].length > 0) continue
+        delete payload.pollQuestions[filterThis[x]]
+    }   
+    const pollQuest = Object.keys(payload.pollQuestions).reduce((obj, i) => {
+        obj[i] = { pollOption: payload.pollQuestions[i] }
         return obj
     }, {})
-
+    const { question, ipFilter } = payload
     return {
-        question: payload.question,
-        ipFilter: payload.ipFilter,
+        question,
+        ipFilter,
         pollQuestions: pollQuest
     }
 }
@@ -86,6 +85,7 @@ const CreatePoll = (props: IProps) => {
                 onSubmit={async (values) => {
                     setWaiter(true)
                     const payload = orangizePayload(values)
+                    console.log(payload)
                     try {
                         const send = await fetch("/createpoll", {
                             method: 'POST',

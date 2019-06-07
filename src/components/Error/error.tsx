@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import { Link } from 'react-router-dom'
 import { Error } from '../Main/main'
 import { RouteComponentProps } from 'react-router'
@@ -12,12 +12,9 @@ interface Props extends RouteComponentProps {
 
 const ErrorScreen = (props: Props) => {
 
-    useEffect(() => {
-        if (!props.error) {
-            props.history.push("/")
-            return
-        }
-    }, [])
+    if (!props.error) {
+        props.history.push("/")
+    }
     return (
         <div className="create-poll vote-error err">
             {props.error && (

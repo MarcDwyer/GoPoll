@@ -1,28 +1,18 @@
 import React, { useState, useRef } from 'react'
-import { TextField } from '@material-ui/core'
-import { Button } from '@material-ui/core'
+import { withRouter } from 'react-router-dom'
+import { RouteComponentProps } from 'react-router'
 import { CopyToClipboard } from 'react-copy-to-clipboard';
-import './sharepoll.scss'
-import { makeStyles } from '@material-ui/core/styles';
 
-interface Props {
+import './sharepoll.scss'
+
+interface Props extends RouteComponentProps {
     id: string | null;
     show: boolean;
 }
-const useStyles = makeStyles(theme => ({
-    button: {
-        margin: theme.spacing(1),
-    },
-    input: {
-        display: 'none',
-    },
-}));
-
 
 const SharePoll = (props: Props) => {
     const { show, id } = props
-    const str = props.id ? `${document.location.host}/vote/${[props.id]}` : "poo"
-    const classes = useStyles()
+    const str = props.id ? `${document.location.host}/vote/${[props.id]}` : ""
     const [clicked, setClicked] = useState<boolean>(false)
 
     let welcome = useRef<HTMLDivElement | null>(null)
@@ -31,6 +21,8 @@ const SharePoll = (props: Props) => {
         if (show) return "welcome-screen"
         return ""
     }
+    if (props.location.pathname === "/" && clicked) setClicked(false)
+    
     return (
         <div className={`master-share ${show || id ? "" : "hide"} ${getClass()}`} ref={welcome}>
             <div className="inner-share">
@@ -44,21 +36,21 @@ const SharePoll = (props: Props) => {
                 )}
                 {props.id && (
                     <div>
-                        <TextField
-                            label="Share your poll!"
+                        <input
+                            type="text"
+                            className="input-design "
                             value={str}
+                            readOnly={true}
                         />
                         <CopyToClipboard
                             text={str}
                             onCopy={() => setClicked(true)}
                         >
-                            <Button
-                                variant="outlined"
-                                color="secondary"
-                                className={classes.button}
+                            <button
+                            className="share-btn"
                             >
-                                {clicked ? "Copied!" : "Share"}
-                            </Button>
+                                {clicked ? "Copied!" : "Share your poll!"}
+                            </button>
                         </CopyToClipboard>
                     </div>
                 )}
@@ -67,4 +59,4 @@ const SharePoll = (props: Props) => {
     )
 }
 
-export default SharePoll
+export default withRouter(SharePoll)

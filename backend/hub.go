@@ -61,7 +61,7 @@ func (h *Hub) run() {
 				close(client.send)
 			}
 		case upvote := <-h.broadcast:
-			if h.clients[upvote.ID].Filter && h.clients[upvote.ID].Addresses[upvote.Client.ip] {
+			if os.Getenv("STAGE") == "production" && h.clients[upvote.ID].Filter && h.clients[upvote.ID].Addresses[upvote.Client.ip] {
 				fmt.Println("ips have been matched...")
 				msg := &StandardMsg{Message: "You already voted", Type: "duplicate_ip", Error: "duplicate_ip"}
 				snd, _ := json.Marshal(*msg)

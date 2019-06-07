@@ -1,6 +1,6 @@
 import React from 'react'
 import { Poll } from '../Main/main'
-import { Bar } from 'react-chartjs-2'
+import { HorizontalBar } from 'react-chartjs-2'
 import './viewpoll.scss'
 
 interface Props {
@@ -11,6 +11,10 @@ const ViewPoll = (props: Props) => {
     let data = {}
     let total = 0
     let options = {}
+    let size = {
+        height: window.innerWidth < 1000 ? 100 : 55,
+        width: 100
+    }
     if (props.poll) {
         const pollData = Object.values(props.poll.pollQuestions)
         const obj = {
@@ -30,6 +34,7 @@ const ViewPoll = (props: Props) => {
         data = obj
 
         options = {
+            maintainAspectRatio: true,
             legend: {
                 labels: {
                     fontColor: "black"
@@ -38,16 +43,18 @@ const ViewPoll = (props: Props) => {
             scales: {
                 yAxes: [{
                     ticks: {
-                        beginAtZero: true,
-                        suggestedMin: 0,
-                        suggestedMax: total,
                         fontColor: 'black',
+                        fontStyle: "bold",
                         stepSize: 1
                     }
                 }],
                 xAxes: [{
                     ticks: {
-                        fontColor: 'black'
+                        fontColor: 'black',
+                        fontStyle: "bold",
+                        beginAtZero: true,
+                        suggestedMin: 0,
+                        suggestedMax: total,
                     }
                 }]
             }
@@ -57,7 +64,9 @@ const ViewPoll = (props: Props) => {
     return (
         <div className={`create-poll results`}>
             {props.poll && (
-                <Bar
+                <HorizontalBar
+                    height={size.height}
+                    width={size.width}
                     data={data}
                     options={options}
                 />
