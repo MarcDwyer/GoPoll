@@ -171,7 +171,6 @@ func serveWs(hub *Hub, w http.ResponseWriter, r *http.Request, vars map[string]s
 	}
 	reg := &InitPoll{client: client, ipFilter: ch.IpFilter}
 	client.hub.register <- reg
-	fmt.Println(ch)
 	rz, err := json.Marshal(ch)
 	if err != nil {
 		fmt.Println(err)
