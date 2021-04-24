@@ -1,0 +1,15 @@
+.results {
+    width: 55%;
+    border-radius: 5px;
+    padding: 25px 25px;
+
+    @media (max-width: 1000px) {
+        height: 55%;
+        width: 80%;
+
+    }
+}
+
+.view-error {
+    width: 35%;
+}

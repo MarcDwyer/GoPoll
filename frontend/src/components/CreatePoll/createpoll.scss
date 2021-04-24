@@ -1,0 +1,84 @@
+.create-poll {
+    margin: auto;
+    width: 650px;
+    display: flex;
+    flex-direction: column;
+    background-color: #ffd756;
+    padding: 10px 10px;
+
+    .error {
+        text-align: center;
+        font-size: 24px;
+        margin: 0;
+    }
+
+    .off-button {
+        opacity: .5;
+    }
+
+    .poll-content {
+        display: flex;
+        height: 100%;
+        flex-direction: column;
+        margin: 10px;
+
+        .master-div {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+
+            .subdiv {
+                display: flex;
+                width: 100% !important;
+
+                .circle {
+                    margin: auto 10px auto auto;
+                    height: 8px;
+                    width: 8px !important;
+                    border-radius: 50%;
+                    border: solid 1px rgba(0, 0, 0, .55);
+                    background-color: rgba(0, 0, 0, .55);
+                }
+
+                input {
+                    width: 100%;
+                }
+            }
+
+            .custom-error {
+                width: 100% !important;
+            }
+        }
+    }
+}
+
+.submit-button {
+    background-color: #4CAF50;
+    border: none;
+    color: white;
+    padding: 10px 32px;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    width: 115px;
+}
+
+.input-design {
+    background-color: transparent;
+    padding: 5px 5px;
+    margin-top: 15px;
+    margin-bottom: 15px;
+    border: none;
+    border-bottom: 1px solid green;
+    outline: none;
+}
+
+.question {
+    height: 35px;
+    font-size: 26px;
+}
+
+.button-div {
+    margin-top: 25px;
+}

@@ -1,0 +1,29 @@
+nav {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    width: 100%;
+    height: 55px;
+    background-color: #ffd756;
+    display: flex;
+
+    .brand-logo {
+        margin: auto auto auto 25px;
+
+        h4 {
+            font-size: 36px;
+            margin: 0;
+        }
+    }
+    .links {
+        font-size: 26px;
+        margin: 5px 10px 5px auto;
+
+        .about-link {
+            border-left: solid 1px black;
+            border-right: solid 1px black;
+            padding: 0 10px 0 10px;
+        }
+    }
+}
