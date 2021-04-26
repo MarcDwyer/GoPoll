@@ -1,7 +1,7 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import { App } from "./src/components/App";
-import { PollStore } from "./src/components/stores/poll_store";
+import { App } from "./src/App";
+import { PollStore } from "./src/stores/poll_store";
 
 const root = document.querySelector(".root");
 try {

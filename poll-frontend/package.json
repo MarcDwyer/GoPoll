@@ -14,6 +14,7 @@
     "snowpack": "^3.3.5"
   },
   "dependencies": {
+    "@snowpack/plugin-sass": "^1.4.0",
     "@types/react": "^17.0.3",
     "@types/react-dom": "^17.0.3",
     "@types/react-router-dom": "^5.1.7",
