@@ -11,7 +11,7 @@ export type WebSocketRequest = {
 };
 
 export enum Types {
-  createGame = "create_game",
+  createPoll = "createPoll",
 }
 wss.on("connection", function (ws: WebSocketClient) {
   ws.on("message", function (msg: string) {
@@ -19,8 +19,9 @@ wss.on("connection", function (ws: WebSocketClient) {
       const request: WebSocketRequest = JSON.parse(msg);
 
       switch (request.type) {
-        case Types.createGame:
-
+        case Types.createPoll:
+          console.log(request.payload);
+          break;
         default:
           console.log(`Default ran: `);
       }

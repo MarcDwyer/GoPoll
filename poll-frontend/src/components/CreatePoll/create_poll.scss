@@ -1,0 +1,42 @@
+.create-poll {
+  margin: auto;
+  background-color: #f0bf4c;
+  padding: 25px 25px;
+  display: flex;
+  flex-direction: column;
+  width: 450px;
+
+  .option {
+    font-size: 22px;
+    font-weight: bold;
+  }
+  .headline {
+    font-size: 26px !important;
+    border-bottom: 1px solid black;
+  }
+
+  .question {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 15px;
+  }
+
+  .options {
+    display: flex;
+    flex-direction: column;
+    border-top: 1px solid black;
+    padding: 5px 5px;
+    border-bottom: 1px solid black;
+    input {
+      margin-top: 5px;
+      margin-bottom: 5px;
+    }
+  }
+  .submit {
+    color: #eee;
+    background-color: #4ca64c;
+  }
+  * {
+    margin: 10px 0 10px 0;
+  }
+}
