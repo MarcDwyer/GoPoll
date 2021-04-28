@@ -28,10 +28,12 @@ export const App = observer(({ pollStore }: Props) => {
       <Switch>
         <div className="app">
           <Navbar />
-          <Route
-            component={() => <Homepage pollStore={pollStore} />}
-            path="/"
-          />
+          <div className="inner-app">
+            <Route
+              component={() => <Homepage pollStore={pollStore} />}
+              path="/"
+            />
+          </div>
         </div>
       </Switch>
     </BrowserRouter>

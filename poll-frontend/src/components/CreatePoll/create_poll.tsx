@@ -32,36 +32,38 @@ const CreatePoll = observer(({ createStore, pollStore }: FinalProps) => {
         sendPoll();
       }}
     >
-      <span className="headline option">Create a poll!</span>
-      <div className="question">
-        <span className="option">Whats your question?</span>
-        <input
-          value={createStore.question}
-          onChange={(e) => (createStore.question = e.target.value)}
-          placeholder="Question"
-        />
-      </div>
-      <div className="options headline">
-        <span>Options</span>
-        {createStore.options.map((opt, i) => {
-          const { showing } = createStore;
-          if (showing <= i) return;
-          return (
-            <input
-              key={i}
-              placeholder={`poll option ${i + 1}`}
-              value={opt}
-              onChange={(e) => {
-                createStore.options[i] = e.target.value;
-              }}
-            />
-          );
-        })}
-      </div>
-      <div className="buttons">
-        <button className="submit btn" type="submit">
-          Submit
-        </button>
+      <div className="inner-create">
+        <span className="headline option">Create a poll!</span>
+        <div className="question">
+          <span className="option">Whats your question?</span>
+          <input
+            value={createStore.question}
+            onChange={(e) => (createStore.question = e.target.value)}
+            placeholder="Question"
+          />
+        </div>
+        <div className="options headline">
+          <span>Options</span>
+          {createStore.options.map((opt, i) => {
+            const { showing } = createStore;
+            if (showing <= i) return;
+            return (
+              <input
+                key={i}
+                placeholder={`poll option ${i + 1}`}
+                value={opt}
+                onChange={(e) => {
+                  createStore.options[i] = e.target.value;
+                }}
+              />
+            );
+          })}
+        </div>
+        <div className="buttons">
+          <button className="submit btn" type="submit">
+            Submit
+          </button>
+        </div>
       </div>
     </form>
   );
