@@ -27,7 +27,7 @@ const CreatePoll = observer(({ createStore, pollStore }: FinalProps) => {
   };
   return (
     <form
-      className="create-poll"
+      className="create-poll card"
       onSubmit={(e) => {
         e.preventDefault();
         sendPoll();

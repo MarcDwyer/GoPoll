@@ -7,6 +7,7 @@ import { Navbar } from "./components/Navbar/navbar";
 
 import "./App.scss";
 import { MySocket } from "./my_socket";
+import { VotePoll } from "./components/VotePoll/votepoll";
 
 type Props = {
   pollStore: PollStore;
@@ -20,7 +21,7 @@ export const App = observer(({ pollStore }: Props) => {
     ws.onopen = () => (pollStore.mySocket = new MySocket(ws));
     ws.onerror = (e) => console.error(e);
   }, []);
-
+  console.log("ap[p");
   useEffect(() => {
     if (pollStore.mySocket) {
       pollStore.setListeners();
@@ -34,16 +35,17 @@ export const App = observer(({ pollStore }: Props) => {
   }, [pollStore.poll]);
 
   return (
-    <Switch>
-      <div className="app">
-        <Navbar />
-        <div className="inner-app">
+    <div className="app">
+      <Navbar />
+      <div className="inner-app">
+        <Switch>
+          <Route component={VotePoll} path="/vote/:id" />
           <Route
             component={() => <Homepage pollStore={pollStore} />}
             path="/"
           />
-        </div>
+        </Switch>
       </div>
-    </Switch>
+    </div>
   );
 });

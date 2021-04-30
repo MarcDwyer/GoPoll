@@ -1,8 +1,9 @@
 import React from "react";
 import ReactDOM from "react-dom";
+import { BrowserRouter } from "react-router-dom";
 import { App } from "./src/App";
 import { PollStore } from "./src/stores/poll_store";
-import { BrowserRouter } from "react-router-dom";
+import { Router } from "react-router";
 
 const root = document.querySelector(".root");
 try {
