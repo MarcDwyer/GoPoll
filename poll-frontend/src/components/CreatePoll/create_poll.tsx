@@ -25,7 +25,6 @@ const CreatePoll = observer(({ createStore, pollStore }: FinalProps) => {
     const poll = createStore.finalize;
     pollStore.postPoll(poll);
   };
-
   return (
     <form
       className="create-poll"
