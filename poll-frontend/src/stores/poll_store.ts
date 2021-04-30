@@ -41,6 +41,7 @@ export type Payload = {
 export enum Types {
   createPoll = "createPoll",
 }
+
 export class PollStore {
   mySocket: MySocket | null = null;
   constructor() {
@@ -61,6 +62,7 @@ export class PollStore {
       })
     );
   }
+
   async setListeners() {
     try {
       if (!this.mySocket) throw "WebSocket conn has not been established";

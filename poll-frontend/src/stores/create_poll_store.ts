@@ -17,7 +17,14 @@ export class CreatePollStore {
       options: observable,
     });
   }
+  get isComplete() {
+    const filled = this.options.reduce((count, opt) => {
+      if (opt.length) count++;
+      return count;
+    }, 0);
 
+    return Boolean(filled >= 2 && this.question.length);
+  }
   get finalize() {
     const { question, options } = this;
     const filteredOpts = options.filter((opt) => opt.length);

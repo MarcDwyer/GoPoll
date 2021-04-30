@@ -3,12 +3,18 @@
   display: flex;
   min-height: 450px;
   padding: 15px 15px;
+  margin: auto;
 
   .inner-create {
     display: flex;
     margin: auto;
     flex-direction: column;
     overflow-x: hidden;
+
+    * {
+      margin-top: 5px;
+      margin-bottom: 5px;
+    }
 
     .option {
       font-size: 22px;

@@ -4,5 +4,11 @@ export type PollOption = {
 };
 export type Poll = {
   question: string;
+  id: string;
   options: PollOption[];
+};
+
+export type ReqCreatePoll = {
+  question: string;
+  options: string[];
 };

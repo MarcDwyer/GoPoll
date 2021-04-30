@@ -20,10 +20,12 @@ const CreatePoll = observer(({ createStore, pollStore }: FinalProps) => {
   }, [last]);
 
   const sendPoll = () => {
+    const isComp = createStore.isComplete;
+    if (!isComp) return;
     const poll = createStore.finalize;
-    console.log(pollStore);
     pollStore.postPoll(poll);
   };
+
   return (
     <form
       className="create-poll"
