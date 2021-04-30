@@ -1,5 +1,6 @@
 import { action, computed, makeObservable, observable } from "mobx";
 import { MySocket } from "../my_socket";
+import { Poll } from "../type_defs";
 import { PollPost } from "./create_poll_store";
 
 export type Payload = {
@@ -15,11 +16,15 @@ export enum RecTypes {
 export class PollStore {
   mySocket: MySocket | null = null;
 
+  poll: Poll | null = null;
+
   constructor() {
     makeObservable(this, {
       mySocket: observable,
+      poll: observable,
       ws: computed,
       postPoll: action,
+      setListeners: action,
     });
   }
   get ws() {
@@ -45,7 +50,10 @@ export class PollStore {
 
         switch (data.type) {
           case RecTypes.pollInfo:
-          // do something with created poll here
+            // do something with created poll here
+            this.poll = data.payload;
+            break;
+          default:
         }
       }
     } catch (r) {

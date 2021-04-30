@@ -19,5 +19,7 @@ export class HandleRequest {
 
     const pollRoom = new PollRoom(newPoll);
     this.pollRooms.set(id, pollRoom);
+
+    return pollRoom.poll;
   }
 }

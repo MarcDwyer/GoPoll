@@ -1,17 +1,20 @@
 import React, { useEffect } from "react";
-import { BrowserRouter, Switch, Route } from "react-router-dom";
+import { Switch, Route, useHistory } from "react-router-dom";
 import { Homepage } from "./paths/Homepage/homepage";
 import { observer } from "mobx-react-lite";
-import { MySocket, PollStore } from "./stores/poll_store";
+import { PollStore } from "./stores/poll_store";
 import { Navbar } from "./components/Navbar/navbar";
 
 import "./App.scss";
+import { MySocket } from "./my_socket";
 
 type Props = {
   pollStore: PollStore;
 };
 
 export const App = observer(({ pollStore }: Props) => {
+  const history = useHistory();
+
   useEffect(() => {
     const ws = new WebSocket("ws://localhost:1992/");
     ws.onopen = () => (pollStore.mySocket = new MySocket(ws));
@@ -23,19 +26,24 @@ export const App = observer(({ pollStore }: Props) => {
       pollStore.setListeners();
     }
   }, [pollStore.mySocket]);
+
+  useEffect(() => {
+    if (pollStore.poll) {
+      history.push(`/vote/${pollStore.poll.id}`);
+    }
+  }, [pollStore.poll]);
+
   return (
-    <BrowserRouter>
-      <Switch>
-        <div className="app">
-          <Navbar />
-          <div className="inner-app">
-            <Route
-              component={() => <Homepage pollStore={pollStore} />}
-              path="/"
-            />
-          </div>
+    <Switch>
+      <div className="app">
+        <Navbar />
+        <div className="inner-app">
+          <Route
+            component={() => <Homepage pollStore={pollStore} />}
+            path="/"
+          />
         </div>
-      </Switch>
-    </BrowserRouter>
+      </div>
+    </Switch>
   );
 });
