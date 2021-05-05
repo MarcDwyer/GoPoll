@@ -13,8 +13,10 @@ export const VotePoll = observer(({ pollStore }: Props) => {
   useEffect(() => {
     if (!poll && id && id.length) {
       // fetch poll here
-      console.log(id);
+      pollStore.subscribe(id);
     }
   }, [poll]);
-  return <div className="vote card"></div>;
+  return (
+    <div className="vote card">{poll && <span>{poll.question}</span>}</div>
+  );
 });

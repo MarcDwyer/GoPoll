@@ -9,9 +9,13 @@ export type Payload = {
 };
 export enum ReqTypes {
   createPoll = "createPoll",
-}
-export enum RecTypes {
   subscribe = "subscribe",
+  unsubscribe = "unsubscribe",
+}
+
+export enum RecTypes {
+  pollInfo = "pollInfo",
+  unsubscribe = "unsubscribe",
 }
 export class PollStore {
   mySocket: MySocket | null = null;
@@ -49,9 +53,17 @@ export class PollStore {
         const data = JSON.parse(msg.data) as Payload;
 
         switch (data.type) {
-          case RecTypes.subscribe:
+          case RecTypes.pollInfo:
             // do something with created poll here
-            this.poll = data.payload;
+            const { pollInfo } = data.payload;
+            if ("error" in pollInfo) {
+              throw pollInfo;
+            }
+            this.poll = data.payload.pollInfo;
+            break;
+          case RecTypes.unsubscribe:
+            console.log("Unsubed request compeleted");
+            this.poll = null;
             break;
           default:
         }
@@ -62,9 +74,19 @@ export class PollStore {
   }
   subscribe(id: string) {
     const payload = {
-      type: RecTypes.subscribe,
+      type: ReqTypes.subscribe,
       payload: {
         id,
+      },
+    };
+    this.ws.send(JSON.stringify(payload));
+  }
+  unsubscribe() {
+    if (!this.poll) return;
+    const payload = {
+      type: ReqTypes.unsubscribe,
+      payload: {
+        id: this.poll.id,
       },
     };
     this.ws.send(JSON.stringify(payload));
