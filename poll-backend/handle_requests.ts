@@ -1,6 +1,7 @@
 import { Poll, ReqCreatePoll } from "./type_defs.ts";
 import { v4 } from "https://deno.land/std@0.95.0/uuid/mod.ts";
 import { PollRoom } from "./poll_room.ts";
+import { WebSocketClient } from "https://deno.land/x/websocket@v0.1.1/lib/websocket.ts";
 
 export type PollRooms = Map<string, PollRoom>;
 
@@ -19,7 +20,14 @@ export class HandleRequest {
 
     const pollRoom = new PollRoom(newPoll);
     this.pollRooms.set(id, pollRoom);
-
-    return pollRoom.poll;
+    return pollRoom;
+  }
+  subscribe(id: string, ws: WebSocketClient) {
+    const pr = this.pollRooms.get(id);
+    if (pr) {
+      pr.addCon(ws);
+      return pr.poll;
+    }
+    return { error: "No poll found with that id" };
   }
 }

@@ -11,7 +11,7 @@ export enum ReqTypes {
   createPoll = "createPoll",
 }
 export enum RecTypes {
-  pollInfo = "pollinfo",
+  subscribe = "subscribe",
 }
 export class PollStore {
   mySocket: MySocket | null = null;
@@ -49,7 +49,7 @@ export class PollStore {
         const data = JSON.parse(msg.data) as Payload;
 
         switch (data.type) {
-          case RecTypes.pollInfo:
+          case RecTypes.subscribe:
             // do something with created poll here
             this.poll = data.payload;
             break;
@@ -59,5 +59,14 @@ export class PollStore {
     } catch (r) {
       console.error(r);
     }
+  }
+  subscribe(id: string) {
+    const payload = {
+      type: RecTypes.subscribe,
+      payload: {
+        id,
+      },
+    };
+    this.ws.send(JSON.stringify(payload));
   }
 }

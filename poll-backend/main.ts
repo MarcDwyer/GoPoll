@@ -16,7 +16,7 @@ export enum ReqTypes {
 }
 
 export enum RecTypes {
-  pollInfo = "pollinfo",
+  subscribe = "subscribe",
 }
 
 const handleReq = new HandleRequest();
@@ -28,14 +28,14 @@ wss.on("connection", function (ws: WebSocketClient) {
 
       switch (request.type) {
         case ReqTypes.createPoll:
-          const poll = handleReq.createPoll(request.payload);
-          ws.send(
-            JSON.stringify({
-              payload: poll,
-              type: RecTypes.pollInfo,
-            })
-          );
+          const pr = handleReq.createPoll(request.payload);
+          pr.addCon(ws);
+          ws.send(JSON.stringify(pr.poll));
           break;
+        case RecTypes.subscribe:
+          const { id } = request.payload;
+          const res = handleReq.subscribe(id, ws);
+          ws.send(JSON.stringify(res));
         default:
           console.log(`Default ran: `);
       }

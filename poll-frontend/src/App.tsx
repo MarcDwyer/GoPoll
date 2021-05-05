@@ -15,13 +15,12 @@ type Props = {
 
 export const App = observer(({ pollStore }: Props) => {
   const history = useHistory();
-
   useEffect(() => {
     const ws = new WebSocket("ws://localhost:1992/");
     ws.onopen = () => (pollStore.mySocket = new MySocket(ws));
     ws.onerror = (e) => console.error(e);
   }, []);
-  console.log("ap[p");
+
   useEffect(() => {
     if (pollStore.mySocket) {
       pollStore.setListeners();
@@ -39,7 +38,10 @@ export const App = observer(({ pollStore }: Props) => {
       <Navbar />
       <div className="inner-app">
         <Switch>
-          <Route component={VotePoll} path="/vote/:id" />
+          <Route
+            render={(p) => <VotePoll {...p} pollStore={pollStore} />}
+            path="/vote/:id"
+          />
           <Route
             component={() => <Homepage pollStore={pollStore} />}
             path="/"
